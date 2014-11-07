@@ -19,20 +19,19 @@ window.pegasus = function pegasus(a, xhr) {
   xhr.onreadystatechange = xhr.then = function(onSuccess, onError, cb) {
 
     // Test if onSuccess is a function or a load event
-    if (onSuccess.call) a = [,onSuccess, onError];
+    if (onSuccess.call) a = [onSuccess, onError];
 
     // Test if request is complete
     if (xhr.readyState == 4) {
 
       // index will be:
-      // 0 if undefined
-      // 1 if status is between 200 and 399
-      // 2 if status is over
-      cb = a[0|xhr.status / 200];
+      // 0 if status is between 0 and 399
+      // 1 if status is over
+      cb = a[0|xhr.status / 400];
 
       // Safari doesn't support xhr.responseType = 'json'
       // so the response is parsed
-      if (cb) cb(xhr.status === 200?JSON.parse(xhr.responseText):xhr);
+      if (cb) cb(xhr.status === 200 || xhr.status === 0?JSON.parse(xhr.responseText):xhr);
     }
   };
 
@@ -46,16 +45,6 @@ window.pegasus = function pegasus(a, xhr) {
 // Load manifest from localStorage
 var manifest = JSON.parse(localStorage.getItem('manifest'));
 
-// If not in localStorage, fetch it
-if(!manifest){
-  // grab manifest.json location from <script manifest="..."></script>
-  var url = (s = document.querySelector('script[manifest]')? s.getAttribute('manifest'): null) || 'manifest.json';
-  pegasus(url).then(loadManifest,function(xhr){
-    console.error('Could not download '+url+': '+xhr.status);
-  });
-} else {
-  loadManifest(manifest,true);
-}
 // After fetching manifest (localStorage or XHR), load it
 function loadManifest(manifest,fromLocalStorage){
   // Check if there is anything to load
@@ -105,5 +94,17 @@ function loadManifest(manifest,fromLocalStorage){
   } else {
     loadScripts();
   }
+}
+
+// If not in localStorage, fetch it
+if(!manifest){
+  // grab manifest.json location from <script manifest="..."></script>
+  var s = document.querySelector('script[manifest]');
+  var url = (s? s.getAttribute('manifest'): null) || 'manifest.json';
+  pegasus(url).then(loadManifest,function(xhr){
+    console.error('Could not download '+url+': '+xhr.status);
+  });
+} else {
+  loadManifest(manifest,true);
 }
 })();

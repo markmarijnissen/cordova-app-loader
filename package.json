@@ -4,7 +4,8 @@
   "description": "Cordova App Loader - remote update your cordova app",
   "main": "index.js",
   "scripts": {
-    "prepublish":"cp bootstrap.js www/bootstra.js && gluejs --include index.js --main index.js --global CordovaAppLoader > www/CordovaAppLoader.js",
+    "deps":"cp node_modules/cordova-file-cache/node_modules/cordova-promise-fs/CordovaPromiseFS.js www/lib/CordovaPromiseFS.js",
+    "prepublish": "cp bootstrap.js www/bootstrap.js && gluejs --include index.js --include node_modules/cordova-file-cache/index.js --main index.js --global CordovaAppLoader > www/lib/CordovaAppLoader.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -15,5 +16,8 @@
     "update"
   ],
   "author": "Mark Marijnissen",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "cordova-file-cache": "^0.1.1"
+  }
 }

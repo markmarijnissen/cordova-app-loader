@@ -1,0 +1,20 @@
+{
+  "files":{
+    "lib/jquery.min.js": { "version": 0 },
+    "lib/bluebird.js": { "version": 0 },
+    "lib/CordovaPromiseFS.js": { "version": 0 },
+    "lib/CordovaAppLoader.js": { "version": 0 },
+    "test/test.js": { "version": 0 },
+    "update3/index.js": { "version": 3 },
+    "update3/style.css": { "version": 3 }
+  },
+  "load":[
+    "lib/jquery.min.js",
+    "lib/bluebird.js",
+    "lib/CordovaPromiseFS.js",
+    "lib/CordovaAppLoader.js",
+    "test/test.js",
+    "update3/index.js",
+    "update3/style.css"
+  ]
+}

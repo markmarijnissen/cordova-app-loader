@@ -1,1 +1,1 @@
-alert('Hello V3');
+$('#msg').text('Hello Update 3!');

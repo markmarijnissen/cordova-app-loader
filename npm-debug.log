@@ -1,0 +1,26 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node', '/usr/local/bin/npm', 'run-script', 'deps' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.32
+4 verbose run-script [ 'predeps', 'deps', 'postdeps' ]
+5 info predeps cordova-app-loader@0.1.0
+6 info deps cordova-app-loader@0.1.0
+7 verbose unsafe-perm in lifecycle true
+8 info cordova-app-loader@0.1.0 Failed to exec deps script
+9 error cordova-app-loader@0.1.0 deps: `cp bootstrap.js www/bootstrap.js && cp node_modules/cordova-file-cache/CordovaFileCache www/CordovaFileCache.js && cp node_modules/cordova-file-cache/node_modules/cordova-promise-fs/CordovaPromiseFS.js www/CordovaPromiseFS.js`
+9 error Exit status 1
+10 error Failed at the cordova-app-loader@0.1.0 deps script.
+10 error This is most likely a problem with the cordova-app-loader package,
+10 error not with npm itself.
+10 error Tell the author that this fails on your system:
+10 error     cp bootstrap.js www/bootstrap.js && cp node_modules/cordova-file-cache/CordovaFileCache www/CordovaFileCache.js && cp node_modules/cordova-file-cache/node_modules/cordova-promise-fs/CordovaPromiseFS.js www/CordovaPromiseFS.js
+10 error You can get their info via:
+10 error     npm owner ls cordova-app-loader
+10 error There is likely additional logging output above.
+11 error System Darwin 13.4.0
+12 error command "node" "/usr/local/bin/npm" "run-script" "deps"
+13 error cwd /Users/mark/dev/tinmenrc/node_modules/cordova-app-loader
+14 error node -v v0.10.32
+15 error npm -v 1.4.28
+16 error code ELIFECYCLE
+17 verbose exit [ 1, true ]

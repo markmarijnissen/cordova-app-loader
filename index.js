@@ -53,7 +53,8 @@ AppLoader.prototype.check = function(newManifest){
         self._toBeDownloaded = Object.keys(newManifest.files)
           .filter(function(file){
             return !manifest.files[file]
-                   || manifest.files[file].version !== newManifest.files[file].version;
+                   || manifest.files[file].version !== newManifest.files[file].version
+                   || !self.cache.isCached(file);
           });
         console.log('toBeDownloaded',self._toBeDownloaded);
         
@@ -91,7 +92,6 @@ AppLoader.prototype.download = function(onprogress){
       self.cache.add(self._toBeDownloaded);
       return self.cache.download(onprogress);
     }).then(function(){
-      debugger;
       // We deleted stuff, so we MUST load new manifest on next load!
       localStorage.setItem('manifest',JSON.stringify(self.newManifest));
       self._updateReady = true;
