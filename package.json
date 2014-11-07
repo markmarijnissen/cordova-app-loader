@@ -1,0 +1,19 @@
+{
+  "name": "cordova-app-loader",
+  "version": "0.1.0",
+  "description": "Cordova App Loader - remote update your cordova app",
+  "main": "index.js",
+  "scripts": {
+    "prepublish":"cp bootstrap.js www/bootstra.js && gluejs --include index.js --main index.js --global CordovaAppLoader > www/CordovaAppLoader.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cordova",
+    "app",
+    "loader",
+    "remote",
+    "update"
+  ],
+  "author": "Mark Marijnissen",
+  "license": "MIT"
+}

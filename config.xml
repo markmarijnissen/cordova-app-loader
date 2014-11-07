@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="nl.madebymark.apploader" version="0.1.5" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Cordova App Loader</name>
+    <description>
+      Cordova App Loader
+    </description>
+    <author email="info@madebymark.nl" href="http://www.madebymark.nl">
+        Mark Marijnissen
+    </author>
+    <content src="index.html"/>
+    <access origin="*" />
+</widget>
