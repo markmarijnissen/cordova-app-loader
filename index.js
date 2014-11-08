@@ -30,11 +30,6 @@ AppLoader.prototype.check = function(newManifest){
   var self = this, manifest = this.manifest;
 
   return new Promise(function(resolve,reject){
-    if(self.newManifest && !newManifest) {
-      console.warn('CordovaAppLoader: Already checked for new manifest.');
-      resolve(self.newManifest);
-      return;
-    }
     if(typeof newManifest === "string") {
       self.newManifestUrl = newManifest;
       newManifest = undefined;
@@ -44,13 +39,10 @@ AppLoader.prototype.check = function(newManifest){
       // make sure cache is ready for the DIFF operations!
       self.cache.ready.then(function(){
         if(!newManifest.files){
-          reject('Downloaded Manifest is has no "files" attribute.');
+          reject('Downloaded Manifest has no "files" attribute.');
           return;
         }
-        // Save the new Manifest
-        self.newManifest = newManifest;
-        self.newManifest.root = self.cache.toInternalURL('/') + (self.newManifest.root || '');
-
+  
         // Create the diff
         self._toBeDownloaded = Object.keys(newManifest.files)
           .filter(function(file){
@@ -65,7 +57,14 @@ AppLoader.prototype.check = function(newManifest){
           })
           .concat(self._toBeDownloaded);
 
-        resolve(self.canDownload() || self.canUpdate());
+        if(self._toBeDeleted.length > 0){
+          // Save the new Manifest
+          self.newManifest = newManifest;
+          self.newManifest.root = self.cache.toInternalURL('/') + (self.newManifest.root || '');
+          resolve(true);
+        } else {
+          resolve(false);
+        }
       },reject);
     }
     if(typeof newManifest === "object") {
@@ -77,7 +76,7 @@ AppLoader.prototype.check = function(newManifest){
 };
 
 AppLoader.prototype.canDownload = function(){
-  return this._toBeDeleted.length > 0 || this.cache.isDirty();
+  return !!this.newManifest;
 };
 
 AppLoader.prototype.canUpdate = function(){
@@ -86,16 +85,20 @@ AppLoader.prototype.canUpdate = function(){
 
 AppLoader.prototype.download = function(onprogress){
   var self = this;
+  if(!self.canDownload()) {
+    return Promise.resolve(null);
+  }
+  // we will delete files, which will invalidate the current manifest...
+  localStorage.removeItem('manifest');
+  this.manifest.files = Manifest.files = {};
   return self.cache.remove(self._toBeDeleted,true)
     .then(function(){
       self.cache.add(self._toBeDownloaded);
       return self.cache.download(onprogress);
     }).then(function(){
       self._toBeDeleted = [];
-      // We deleted stuff, so we MUST load new manifest on next load!
-      localStorage.setItem('manifest',JSON.stringify(self.newManifest));
       self._updateReady = true;
-      return self;
+      return self.newManifest;
     });
 };
 
@@ -107,6 +110,17 @@ AppLoader.prototype.update = function(){
     return true;
   }
   return false;
+};
+
+AppLoader.prototype.clear = function(){
+  localStorage.removeItem('manifest');
+  return this.cache.clear();
+};
+
+AppLoader.prototype.reset = function(){
+  return this.clear().then(function(){
+    location.reload();
+  });
 };
 
 module.exports = AppLoader;

@@ -1,6 +1,6 @@
 {
   "name": "cordova-app-loader",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Cordova App Loader - remote update your cordova app",
   "main": "index.js",
   "scripts": {
@@ -20,6 +20,6 @@
   "author": "Mark Marijnissen",
   "license": "MIT",
   "dependencies": {
-    "cordova-file-cache": "^0.1.1"
+    "cordova-file-cache": "^0.2.1"
   }
 }

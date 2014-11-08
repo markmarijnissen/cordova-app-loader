@@ -1,0 +1,23 @@
+{
+  "name": "cordova-app-loadaer",
+  "main": "www/lib/CordovaAppLoader.js",
+  "version": "0.1.1",
+  "homepage": "https://github.com/markmarijnissen/cordova-file-cache",
+  "authors": [
+    "Mark Marijnissen <markmarijnissen@gmail.com>"
+  ],
+  "description": "Remote update your Cordova App",
+  "keywords": [
+    "cordova",
+    "remote",
+    "update"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

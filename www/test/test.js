@@ -1,10 +1,11 @@
 
 var fs = new CordovaPromiseFS({});
+var SERVER = 'http://data.madebymark.nl/cordova-app-loader/';
 
 var loader = window.loader = new CordovaAppLoader({
   fs: fs,
   localRoot: 'app',
-  serverRoot: 'http://data.madebymark.nl/cordova-app-loader/',
+  serverRoot: SERVER,
   mode: 'mirror'
 });
 
@@ -23,7 +24,7 @@ $('body').on('click','.customCheck',function(ev){
 
 $('body').on('click','.check',function(ev){
   var url = $(ev.target).attr('manifest');
-  loader.check(url).then(setStatus,setStatus);
+  loader.check(SERVER+url).then(setStatus,setStatus);
 });
 
 $('body').on('click','.update',function(){
@@ -35,7 +36,7 @@ $('body').on('click','.download',function(){
 });
 
 $('body').on('click','.factory',function(){
-  localStorage.removeItem('manifest');
+  loader.reset();
 });
 
 $('body').on('click','.reload',function(){
