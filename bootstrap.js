@@ -42,69 +42,86 @@ window.pegasus = function pegasus(a, xhr) {
   return xhr;
 };
 //------------------------------------------------------------------
-// Load manifest from localStorage
-var manifest = JSON.parse(localStorage.getItem('manifest'));
-
-// After fetching manifest (localStorage or XHR), load it
-function loadManifest(manifest,fromLocalStorage){
-  // Check if there is anything to load
+// Step 2: After fetching manifest (localStorage or XHR), load it
+function loadManifest(manifest,fromLocalStorage,timeout){
   if(!manifest.load) {
     console.error('Manifest has nothing to load (manifest.load is empty).',manifest);
     return;
   }
-  // Init variables
+
   var el,
       head = document.getElementsByTagName('head')[0],
-      root = manifest.root || './';
+      scripts = manifest.load.concat();
+  
+  // Load Next Script
+  function loadScript(){
+    var src = scripts.shift();
+    if(!src) return;
+    // Ensure the 'src' has no '/' (it's in the root already)
+    if(src[0] === '/') src = src.substr(1);
+    src = manifest.root + src;
+    // Load javascript
+    if(src.substr(-3) === ".js"){
+      el= document.createElement('script');
+      el.type= 'text/javascript';
+      el.src= src;
+      el.onload = loadScript;
+    // Load CSS
+    } else {
+      el= document.createElement('link');
+      el.rel = "stylesheet";
+      el.href = src;
+      el.type = "text/css";
+      loadScript();
+    }
+    head.appendChild(el);
+  }
 
-  // Ensure the 'root' end with a '/'
-  if(root.length > 0 && root[root.length-1] !== '/')
-    root += '/';
-  // Save manifest for next time
-  if(!fromLocalStorage)
+  //---------------------------------------------------
+  // Step 3: Ensure the 'root' end with a '/'
+  manifest.root = manifest.root || './';
+  if(manifest.root.length > 0 && manifest.root[manifest.root.length-1] !== '/')
+    manifest.root += '/';
+
+  // Step 4: Save manifest for next time
+  if(!fromLocalStorage) 
     localStorage.setItem('manifest',JSON.stringify(manifest));
+
+  // Step 5: Load Scripts
+  // If we're loading Cordova files, make sure Cordova is ready first!
+  if(manifest.root.substr(0,7) === 'cdvfile'){
+    document.addEventListener("deviceready", loadScript, false);
+  } else {
+    loadScript();
+  }
   // Save to global scope
   window.Manifest = manifest;
 
-  // Script loader
-  function loadScripts(){
-    manifest.load.forEach(function(src){
-      // Ensure the 'src' has no '/' (it's in the root already)
-      if(src[0] === '/') src = src.substr(1);
-      src = root + src;
-      // Load javascript
-      if(src.substr(-3) === ".js"){
-        el= document.createElement('script');
-        el.type= 'text/javascript';
-        el.src= src;
-      // Load CSS
-      } else {
-        el= document.createElement('link');
-        el.rel = "stylesheet";
-        el.href = src;
-        el.type = "text/css";
+  // Safety timeout. If BOOTSTRAP_OK is not defined,
+  // it will delete the 'localStorage' version and revert to factory settings.
+  if(fromLocalStorage){
+    setTimeout(function(){
+      if(!window.BOOTSTRAP_OK){
+        localStorage.removeItem('manifest');
+        location.reload();
       }
-      head.appendChild(el);
-    });
-  }
-
-  // If we're loading Cordova files, make sure Cordova is ready first!
-  if(root.substr(0,7) === 'cdvfile'){
-    document.addEventListener("deviceready", loadScripts, false);
-  } else {
-    loadScripts();
+    },timeout);
   }
 }
-
-// If not in localStorage, fetch it
+//---------------------------------------------------------------------
+// Step 1: Load manifest from localStorage
+var manifest = JSON.parse(localStorage.getItem('manifest'));
+// grab manifest.json location from <script manifest="..."></script>
+var s = document.querySelector('script[manifest]');
+// Not in localStorage? Fetch it!
 if(!manifest){
-  // grab manifest.json location from <script manifest="..."></script>
-  var s = document.querySelector('script[manifest]');
   var url = (s? s.getAttribute('manifest'): null) || 'manifest.json';
+  // get manifest.json, then loadManifest.
   pegasus(url).then(loadManifest,function(xhr){
     console.error('Could not download '+url+': '+xhr.status);
   });
+// Manifest was in localStorage. Load it immediatly.
 } else {
-  loadManifest(manifest,true);
+  loadManifest(manifest,true,s.getAttribute('timeout') || 10000);
 }
 })();

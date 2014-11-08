@@ -4,6 +4,7 @@
     "lib/bluebird.js": { "version": 0 },
     "lib/CordovaPromiseFS.js": { "version": 0 },
     "lib/CordovaAppLoader.js": { "version": 0 },
+    "test/template.html": {"version": 0},
     "test/test.js": { "version": 0 },
     "update2/index.js": { "version": 2 },
     "update2/style2.css": { "version": 2 }

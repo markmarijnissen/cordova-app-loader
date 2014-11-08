@@ -1,4 +1,3 @@
-$('body').html('<div id="msg">...</div><div id="buttons"></div><div id="status"></div>');
 
 var fs = new CordovaPromiseFS({});
 
@@ -9,25 +8,40 @@ var loader = window.loader = new CordovaAppLoader({
   mode: 'mirror'
 });
 
+$.get(Manifest.root + 'test/template.html', function(template) {
+  $('body').html(template);
+});
+
 function setStatus(msg){
   $('#status').text(JSON.stringify(msg));
 }
 
-['1','2','3'].forEach(function(i){
-  $('<button>').text('check: update'+i+'/manifest.json').click(function(){
-    loader.check('update'+i+'/manifest.json').then(setStatus,setStatus);
-  }).appendTo($('#buttons'));
+$('body').on('click','.customCheck',function(ev){
+  var url = $('#manifest').val();
+  loader.check(url).then(setStatus,setStatus);
 });
 
-$('<button>').text('download').click(function(){
-  loader.download().then(setStatus,setStatus);
-}).appendTo($('#buttons'));
+$('body').on('click','.check',function(ev){
+  var url = $(ev.target).attr('manifest');
+  loader.check(url).then(setStatus,setStatus);
+});
 
-$('<button>').text('update').click(function(){
-  loader.update();
-}).appendTo($('#buttons'));
+$('body').on('click','.update',function(){
+  setStatus(loader.update());
+});
 
+$('body').on('click','.download',function(){
+  loader.download(setStatus).then(setStatus,setStatus);
+});
+
+$('body').on('click','.factory',function(){
+  localStorage.removeItem('manifest');
+});
+
+$('body').on('click','.reload',function(){
+  location.reload();
+});
 
 window.ok = function(ok){console.log('ok',ok);};
 window.err = function(err){console.log('err',err);};
-console.log('loaded app!');
+window.BOOTSTRAP_OK = true;
