@@ -2,6 +2,8 @@ cordova-app-loader
 ==========
 > Remote update your Cordova App
 
+Based on [cordova-promise-fs](https://github.com/markmarijnissen/cordova-promise-fs) and [cordova-file-cache](https://github.com/markmarijnissen/cordova-file-cache).
+
 ## Getting started
 
 ```bash
@@ -18,7 +20,7 @@ cordova-app-loader
 
 **IMPORTANT:** For iOS, use Cordova 3.7.0 or higher (due to a [bug](https://github.com/AppGyver/steroids/issues/534) that affects requestFileSystem).
 
-Or just download and include [CordovaPromiseFS.js](https://raw.githubusercontent.com/markmarijnissen/cordova-promise-fs/master/dist/CordovaPromiseFS.js) and [CordovaFileCache.js](https://raw.githubusercontent.com/markmarijnissen/cordova-file-cache/master/dist/CordovaFileCache.js)
+Or just download and include [CordovaPromiseFS.js](https://raw.githubusercontent.com/markmarijnissen/cordova-promise-fs/master/dist/CordovaPromiseFS.js) and [CordovaAppLoader.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/lib/CordovaAppLoader.js)
 
 ## Demo
 
