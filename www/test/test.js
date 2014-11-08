@@ -4,7 +4,7 @@ var fs = new CordovaPromiseFS({});
 var loader = window.loader = new CordovaAppLoader({
   fs: fs,
   localRoot: 'app',
-  serverRoot: 'http://localhost:8000/ios/www/',
+  serverRoot: 'http://data.madebymark.nl/cordova-app-loader/',
   mode: 'mirror'
 });
 

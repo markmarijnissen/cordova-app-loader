@@ -28,13 +28,10 @@ cd cordova-app-loader
 cordova platform add ios@3.7.0
 cordova plugin add org.apache.cordova.file
 cordova plugin add org.apache.cordova.file-transfer
-cordova serve
-
-# in a new terminal tab:
 cordova run ios
 ```
 
-If you want to run on a real device, modify `serverRoot` in `www/test/test.js` to point to your local server!
+Want to run your own server? Modify `serverRoot` in `www/test/test.js`!
 
 ## Usage
 
