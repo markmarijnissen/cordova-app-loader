@@ -345,6 +345,7 @@ var CordovaPromiseFS =
 	        inprogress--;
 	      } else if(isDownload){
 	        ft.download.apply(ft,args);
+	        if(ft.onprogress) ft.onprogress(new ProgressEvent());
 	      } else {
 	        // Stupid API. 'upload' switched around the 'trustAllHosts' and 'options' arguments.
 	        var opts = args[4]; args[4] = args[5]; args[5] = opts;
@@ -374,10 +375,12 @@ var CordovaPromiseFS =
 
 	    transferOptions = transferOptions || {};
 	    if(!transferOptions.retry || !transferOptions.retry.length) {
-	      transferOptions.retry = options.retry.concat();
+	      transferOptions.retry = options.retry;
 	    }
+	    transferOptions.retry = transferOptions.retry.concat();
 	    
 	    var ft = new FileTransfer();
+	    if(typeof onprogress === 'function') ft.onprogress = onprogress;
 	    var promise = new Promise(function(resolve,reject){
 	      var attempt = function(err){
 	        if(transferOptions.retry.length === 0) {
@@ -397,7 +400,6 @@ var CordovaPromiseFS =
 	      attempt();
 	    });
 	    promise.then(nextTransfer,nextTransfer);
-	    if(typeof onprogress === 'function') ft.onprogress = onprogress;
 	    promise.progress = function(onprogress){
 	      ft.onprogress = onprogress;
 	      return promise;

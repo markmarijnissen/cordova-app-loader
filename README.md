@@ -63,6 +63,11 @@ Want to run your own server? Modify `serverRoot` in `www/test/test.js`!
 }
 ```
 
+You can automatically create a version based on the checksum of the file:
+```bash
+bin/update-manifest www www/manifest.json
+```
+
 ### Step 2: Add [bootstrap.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/bootstrap.js) to your [index.html](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/index.html)
 
 ```html
@@ -104,6 +109,12 @@ loader.update() // reloads page to bootstrap new manifest. Returns true if app w
 
 
 ## Changelog
+
+### 0.2.0 (09/11/2014)
+
+* Improved app layout
+* Added test-cases to the app (slow, broken app, broken download)
+* Several bugfixes
 
 ### 0.1.0 (07/11/2014)
 

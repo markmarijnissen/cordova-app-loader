@@ -52,12 +52,12 @@ AppLoader.prototype.check = function(newManifest){
           });
         
         self._toBeDeleted = Object.keys(manifest.files)
+          .concat(self._toBeDownloaded)
           .filter(function(file){
             return !newManifest.files[file] && self.cache.isCached(file);
-          })
-          .concat(self._toBeDownloaded);
-
-        if(self._toBeDeleted.length > 0){
+          });
+          
+        if(self._toBeDeleted.length > 0 || self._toBeDownloaded.length > 0){
           // Save the new Manifest
           self.newManifest = newManifest;
           self.newManifest.root = self.cache.toInternalURL('/') + (self.newManifest.root || '');
@@ -97,8 +97,12 @@ AppLoader.prototype.download = function(onprogress){
       return self.cache.download(onprogress);
     }).then(function(){
       self._toBeDeleted = [];
+      self._toBeDownloaded = [];
       self._updateReady = true;
       return self.newManifest;
+    },function(files){
+      self.cache.remove(files);
+      return files;
     });
 };
 
@@ -119,6 +123,8 @@ AppLoader.prototype.clear = function(){
 
 AppLoader.prototype.reset = function(){
   return this.clear().then(function(){
+    location.reload();
+  },function(){
     location.reload();
   });
 };

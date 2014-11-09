@@ -99,12 +99,12 @@ var CordovaAppLoader =
 	          });
 	        
 	        self._toBeDeleted = Object.keys(manifest.files)
+	          .concat(self._toBeDownloaded)
 	          .filter(function(file){
 	            return !newManifest.files[file] && self.cache.isCached(file);
-	          })
-	          .concat(self._toBeDownloaded);
-
-	        if(self._toBeDeleted.length > 0){
+	          });
+	          
+	        if(self._toBeDeleted.length > 0 || self._toBeDownloaded.length > 0){
 	          // Save the new Manifest
 	          self.newManifest = newManifest;
 	          self.newManifest.root = self.cache.toInternalURL('/') + (self.newManifest.root || '');
@@ -144,8 +144,12 @@ var CordovaAppLoader =
 	      return self.cache.download(onprogress);
 	    }).then(function(){
 	      self._toBeDeleted = [];
+	      self._toBeDownloaded = [];
 	      self._updateReady = true;
 	      return self.newManifest;
+	    },function(files){
+	      self.cache.remove(files);
+	      return files;
 	    });
 	};
 
@@ -166,6 +170,8 @@ var CordovaAppLoader =
 
 	AppLoader.prototype.reset = function(){
 	  return this.clear().then(function(){
+	    location.reload();
+	  },function(){
 	    location.reload();
 	  });
 	};
@@ -300,39 +306,48 @@ var CordovaAppLoader =
 	      var index = self._downloading.length;
 	      var total = self._downloading.length + queue.length;
 
-	      // augment progress event with index/total stats
-	      var onSingleDownloadProgress;
-	      if(typeof onprogress === 'function') {
-	        onSingleDownloadProgress = function(ev){
-	          ev.index = index;
-	          ev.total = total;
-	          onprogress(ev);
-	        };
-	      }
-
-	      // callback
-	      var onDone = function(){
-	        index++;
-	        // when we're done
-	        if(index !== total) {
-	          // reset downloads
-	          self._downloading = [];
-	          // check if we got everything
-	          self.list().then(function(){
-	            // Yes, we're not dirty anymore!
-	            if(!self.isDirty()) {
-	              resolve(self);
-	            // Aye, some files got left behind!
-	            } else {
-	              reject(self.getDownloadQueue());
-	            }
-	          },reject);
-	        }
-	      };
-
 	      // download every file in the queue (which is the diff from _added with _cached)
-	      queue.forEach(function(url,index){
-	        var download = fs.download(url,self.toPath(url),{retry:self._retry},onSingleDownloadProgress);
+	      queue.forEach(function(url){
+	        var path = self.toPath(url);
+	        // augment progress event with index/total stats
+	        var onSingleDownloadProgress;
+	        if(typeof onprogress === 'function') {
+	          onSingleDownloadProgress = function(ev){
+	            ev.queueIndex = index;
+	            ev.queueSize = total;
+	            ev.url = url;
+	            ev.path = path;
+	            ev.percentage = index / total;
+	            if(ev.loaded > 0 && ev.total > 0 && index !== total){
+	               ev.percentage += (ev.loaded / ev.total) / total;
+	            }
+	            onprogress(ev);
+	          };
+	        }
+
+	        // callback
+	        var onDone = function(){
+	          index++;
+	          // when we're done
+	          if(index === total) {
+	            // reset downloads
+	            self._downloading = [];
+	            // check if we got everything
+	            self.list().then(function(){
+	              // final progress event!
+	              if(onSingleDownloadProgress) onSingleDownloadProgress(new ProgressEvent());
+	              // Yes, we're not dirty anymore!
+	              if(!self.isDirty()) {
+	                resolve(self);
+	              // Aye, some files got left behind!
+	              } else {
+	                reject(self.getDownloadQueue());
+	              }
+	            },reject);
+	          }
+	        };
+
+	        var download = fs.download(url,path,{retry:self._retry},onSingleDownloadProgress);
 	        download.then(onDone,onDone);
 	        self._downloading.push(download);
 	      });

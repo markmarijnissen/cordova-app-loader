@@ -1,0 +1,33 @@
+
+<h5>App: <span id="msg"></span></h5>
+
+<div class="form-group">
+  <a href="#" class="check" manifest="manifest.json">Original</a> | 
+  <a href="#" class="check" manifest="update/manifest.json">Update</a> | 
+  <a href="#" class="check" manifest="slow-download/manifest.json">Slow download</a> | 
+  <a href="#" class="check" manifest="broken-app/manifest.json">Broken app</a> | 
+  <a href="#" class="check" manifest="broken-url/manifest.json">Broken download</a>
+  <input type="text" class="form-control" id="manifest" placeholder="url to manifest.json">
+</div>
+
+<div class="form-group">
+  <button class="btn btn-default doCheck">Check</button> &gt; 
+  <button class="btn btn-default download">Download</button> &gt; 
+  <button class="btn btn-default update">Update</button>
+</div>
+<div class="form-group">
+  <button class="btn btn-link factory">reset to original</button>
+  <button class="btn btn-link reload">reload</button>
+</div>
+
+<h5>Download: <span class="target"></span></h5>
+<div class="progress">
+  <div class="progress-bar" role="progressbar" style="width: 0%;">
+  </div>
+</div>
+
+<h5>Status:</h5>
+<pre id="status">
+</pre>
+
+

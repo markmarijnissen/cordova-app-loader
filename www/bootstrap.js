@@ -72,7 +72,7 @@ function loadManifest(manifest,fromLocalStorage,timeout){
       el.rel = "stylesheet";
       el.href = src;
       el.type = "text/css";
-      loadScript();
+      setTimeout(loadScript,0);
     }
     head.appendChild(el);
   }
