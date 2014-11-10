@@ -13,16 +13,16 @@
             "version": "b647e53cf40a40b3a68017f1a5c04ac20cfa2fb7"
         },
         "lib/CordovaAppLoader.js": {
-            "version": "addb258103efc624f5c21a6a9f68a06feaa47db5"
+            "version": "d84dbc532913cbb0a5b576b31ac33c98e57efcbb"
         },
         "template.html": {
-            "version": "3e70f2873de3d9c91e31271c1a59b32e8002ac23"
+            "version": "67a0f801a50ac6366a24f638f9a61f522058749a"
         },
         "app.js": {
-            "version": "dc24c37d42663c7d7b156eb7debd166c50eac542"
+            "version": "449f427b0ed7cdccda9236bee77948144a703368"
         },
         "update/time.php": {
-            "version": "86a6fef9a4e2957e434343a7b65c683dda2a82c4"
+            "version": "<?= time(); ?>"
         },
         "update/style.css": {
             "version": "092dff7bb63e9e6bcd5b1ef382695d315538db6a"

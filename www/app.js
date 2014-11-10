@@ -7,7 +7,8 @@ var loader = window.loader = new CordovaAppLoader({
   fs: fs,
   localRoot: 'app',
   serverRoot: SERVER,
-  mode: 'mirror'
+  mode: 'mirror',
+  cacheBuster: true
 });
 
 var tapEvent = typeof cordova !== 'undefined'?'touchstart':'click';
@@ -36,7 +37,8 @@ $('body').on(tapEvent,'.check',function(ev){
 $('body').on(tapEvent,'.doCheck',function(ev){
   var url = $('#manifest').val();
   setStatus('checking...');
-  loader.check(url).then(setStatus,setStatus);
+  var cacheBuster = "?"+Math.random();
+  loader.check(url+cacheBuster).then(setStatus,setStatus);
 });
 
 $('body').on(tapEvent,'.update',function(){

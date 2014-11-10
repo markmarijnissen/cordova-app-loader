@@ -51,20 +51,25 @@ AppLoader.prototype.check = function(newManifest){
                    || !self.cache.isCached(file);
           });
         
-        self._toBeDeleted = Object.keys(manifest.files)
-          .concat(self._toBeDownloaded)
-          .filter(function(file){
-            return !newManifest.files[file] && self.cache.isCached(file);
-          });
-          
-        if(self._toBeDeleted.length > 0 || self._toBeDownloaded.length > 0){
-          // Save the new Manifest
-          self.newManifest = newManifest;
-          self.newManifest.root = self.cache.toInternalURL('/') + (self.newManifest.root || '');
-          resolve(true);
-        } else {
-          resolve(false);
-        }
+        self.cache.list().then(function(files){
+          self._toBeDeleted = files
+            .map(function(file){
+              return file.substr(self.cache._localRoot.length);
+            })
+            .filter(function(file){
+              return !newManifest.files[file];
+            })
+            .concat(self._toBeDownloaded);
+            
+          if(self._toBeDeleted.length > 0 || self._toBeDownloaded.length > 0){
+            // Save the new Manifest
+            self.newManifest = newManifest;
+            self.newManifest.root = self.cache.toInternalURL('/') + (self.newManifest.root || '');
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        },reject);
       },reject);
     }
     if(typeof newManifest === "object") {
@@ -76,7 +81,7 @@ AppLoader.prototype.check = function(newManifest){
 };
 
 AppLoader.prototype.canDownload = function(){
-  return !!this.newManifest;
+  return !!this.newManifest && !this._updateReady;
 };
 
 AppLoader.prototype.canUpdate = function(){
