@@ -24,6 +24,8 @@ Or just download and include [CordovaPromiseFS.js](https://raw.githubusercontent
 
 ## Demo
 
+Check out [Cordova App Loader](http://data.madebymark.nl/cordova-app-loader/index.html) in Chrome for a demo! (**Chrome only!**)
+
 ```bash
 git clone git@github.com:markmarijnissen/cordova-app-loader.git
 cd cordova-app-loader
