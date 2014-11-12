@@ -112,6 +112,10 @@ loader.update() // reloads page to bootstrap new manifest. Returns true if app w
 
 ## Changelog
 
+### 0.3.0 (13/11/2014)
+
+* Chrome support!
+
 ### 0.2.0 (09/11/2014)
 
 * Improved app layout
