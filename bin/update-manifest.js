@@ -20,7 +20,8 @@ args.forEach(function(arg){
 });
 manifestFile = path.resolve(manifestFile);
 rootDir = path.resolve(rootDir);
-console.log('root='+rootDir+", manifest="+manifestFile);
+console.log('root='+rootDir);
+console.log('manifest='+manifestFile);
 
 var manifest;
 try {
@@ -33,18 +34,23 @@ try {
   process.exit(1);
 }
 
+var versionChecksum = "";
 for(var filename in manifest.files) {
   try {
-    manifest.files[filename].version = checksum(path.resolve(rootDir,filename));
+    var version = checksum(path.resolve(rootDir,filename));
+    versionChecksum += version;
+    manifest.files[filename].version = version;
   } catch(e){
     console.error('Could not hash file.',e);
   }
 }
 
+manifest.version = crypto.createHash('sha1').update(versionChecksum).digest('hex');
+
 try {
   fs.writeFileSync(
       path.resolve(rootDir, manifestFile),
-      JSON.stringify(manifest,null,4)
+      JSON.stringify(manifest,null,2)
     );
 } catch(e) {
   console.error('Could not write manifest.json',e);
