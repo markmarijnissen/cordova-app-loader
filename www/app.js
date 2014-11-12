@@ -1,5 +1,5 @@
 
-var fs = new CordovaPromiseFS({});
+var fs = new CordovaPromiseFS({ persistent: false });
 var SERVER = 'http://data.madebymark.nl/cordova-app-loader/';
 //var SERVER = 'http://localhost:8000/ios/www/';
 
@@ -11,12 +11,17 @@ var loader = window.loader = new CordovaAppLoader({
   cacheBuster: true
 });
 
+
 var tapEvent = typeof cordova !== 'undefined'?'touchstart':'click';
 
 $.get(Manifest.root + 'template.html', function(template) {
   $('body').html(template);
   $('#msg').text('Original');
   setStatus('ready');
+
+  fs.fs.then(undefined,function(){
+    setStatus('ERROR: Only Chrome and Cordova-iOS/Android are supported!');
+  });
 });
 
 function setStatus(msg){

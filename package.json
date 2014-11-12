@@ -6,7 +6,7 @@
   "scripts": {
     "cordova-promise-fs":"npm run-script cordova-promise-fs prepublish && cp node_modules/cordova-file-cache/node_modules/cordova-promise-fs/dist/CordovaPromiseFS.js www/lib/CordovaPromiseFS.js",
     "cordova-app-loader":"webpack index.js www/lib/CordovaAppLoader.js --output-library CordovaAppLoader --output-library-target var",
-    "bootstrap":"cp bootstrap.js www/bootstrap.js",
+    "bootstrap":"uglifyjs -m --screw-ie8 bootstrap.js > www/bootstrap.js",
     "prepublish": "npm run-script bootstrap && npm run-script cordova-promise-fs && npm run-script cordova-app-loader",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

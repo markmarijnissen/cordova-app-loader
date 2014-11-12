@@ -189,6 +189,12 @@ var CordovaAppLoader =
 
 	var hash = __webpack_require__(2);
 	var Promise = null;
+	var isCordova = typeof cordova !== 'undefined';
+	var SERVER_DETECT = isCordova? '://':'filesystem:';
+
+	if(!isCordova) {
+	  window.ProgressEvent = function ProgressEvent(){}
+	}
 
 	/* Cordova File Cache x */
 	function FileCache(options){
@@ -235,7 +241,7 @@ var CordovaAppLoader =
 	      self._cached = {};
 	      entries = entries.map(function(entry){
 	        self._cached[entry.fullPath] = {
-	          toInternalURL: entry.toInternalURL(),
+	          toInternalURL: isCordova? entry.toInternalURL(): entry.toURL(),
 	          toURL: entry.toURL(),
 	        };
 	        return entry.fullPath;
@@ -309,7 +315,9 @@ var CordovaAppLoader =
 
 	      // keep track of number of downloads!
 	      var queue = self.getDownloadQueue();
+	      var started = [];
 	      var index = self._downloading.length;
+	      var done = self._downloading.length;
 	      var total = self._downloading.length + queue.length;
 
 	      // download every file in the queue (which is the diff from _added with _cached)
@@ -327,15 +335,19 @@ var CordovaAppLoader =
 	            if(ev.loaded > 0 && ev.total > 0 && index !== total){
 	               ev.percentage += (ev.loaded / ev.total) / total;
 	            }
+	            if(started.indexOf(url) < 0) {
+	              started.push(url);
+	              index++;
+	            }
 	            onprogress(ev);
 	          };
 	        }
 
 	        // callback
 	        var onDone = function(){
-	          index++;
+	          done++;
 	          // when we're done
-	          if(index === total) {
+	          if(done === total) {
 	            // reset downloads
 	            self._downloading = [];
 	            // check if we got everything
@@ -385,7 +397,7 @@ var CordovaAppLoader =
 	FileCache.prototype.toInternalURL = function toInternalURL(url){
 	  path = this.toPath(url);
 	  if(this._cached[path]) return this._cached[path].toInternalURL;
-	  return 'cdvfile://localhost/'+(this._fs.options.persistent?'persistent':'temporary')+path;
+	  return this._fs.toInternalURLSync(path);
 	};
 
 	FileCache.prototype.get = FileCache.prototype.toInternalURL;
@@ -400,7 +412,8 @@ var CordovaAppLoader =
 	};
 
 	FileCache.prototype.toServerURL = function toServerURL(path){
-	  return path.indexOf('://') < 0? this._serverRoot + path: path;
+	  if(path[0] === '/') path = path.substr(1);
+	  return path.indexOf(SERVER_DETECT) < 0? this._serverRoot + path: path;
 	};
 
 	/**
