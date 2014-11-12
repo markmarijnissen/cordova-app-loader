@@ -1,36 +1,37 @@
 {
-    "files": {
-        "lib/jquery.min.js": {
-            "version": "afb90752e0a90c24b7f724faca86c5f3d15d1178"
-        },
-        "lib/bootstrap.min.css": {
-            "version": "35e0b4e5ac71901d9919b1a32b5ae69cc660d470"
-        },
-        "lib/bluebird.js": {
-            "version": "f37ff9832449594d1cefe98260cae9fdc13e0749"
-        },
-        "lib/CordovaPromiseFS.js": {
-            "version": "b647e53cf40a40b3a68017f1a5c04ac20cfa2fb7"
-        },
-        "lib/CordovaAppLoader.js": {
-            "version": "addb258103efc624f5c21a6a9f68a06feaa47db5"
-        },
-        "template.html": {
-            "version": "3e70f2873de3d9c91e31271c1a59b32e8002ac23"
-        },
-        "app.js": {
-            "version": "dc24c37d42663c7d7b156eb7debd166c50eac542"
-        },
-        "broken-url/this-file-does-not-exist.jpg": {
-            "version": "not-really-here"
-        }
+  "files": {
+    "lib/jquery.min.js": {
+      "version": "afb90752e0a90c24b7f724faca86c5f3d15d1178"
     },
-    "load": [
-        "lib/jquery.min.js",
-        "lib/bootstrap.min.css",
-        "lib/bluebird.js",
-        "lib/CordovaPromiseFS.js",
-        "lib/CordovaAppLoader.js",
-        "app.js"
-    ]
+    "lib/bootstrap.min.css": {
+      "version": "35e0b4e5ac71901d9919b1a32b5ae69cc660d470"
+    },
+    "lib/bluebird.js": {
+      "version": "f37ff9832449594d1cefe98260cae9fdc13e0749"
+    },
+    "lib/CordovaPromiseFS.js": {
+      "version": "635bd29385fe6664b1cf86dc16fb3d801aa9461a"
+    },
+    "lib/CordovaAppLoader.js": {
+      "version": "76f1eecd3887e69d7b08c60be4f14f90069ca8b8"
+    },
+    "template.html": {
+      "version": "3e70f2873de3d9c91e31271c1a59b32e8002ac23"
+    },
+    "app.js": {
+      "version": "8c99369a825644e68e21433d78ed8b396351cc7d"
+    },
+    "broken-url/this-file-does-not-exist.jpg": {
+      "version": "not-really-here"
+    }
+  },
+  "load": [
+    "lib/jquery.min.js",
+    "lib/bootstrap.min.css",
+    "lib/bluebird.js",
+    "lib/CordovaPromiseFS.js",
+    "lib/CordovaAppLoader.js",
+    "app.js"
+  ],
+  "version": "231d0a27056ae367ba7aa0e2272f115c48e4eeed"
 }
