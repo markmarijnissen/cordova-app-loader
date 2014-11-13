@@ -53,7 +53,6 @@ AppLoader.prototype.check = function(newManifest){
         
         var newFiles = createFilemap(newManifest.files);
         var oldFiles = createFilemap(manifest.files);
-        console.log(newFiles,oldFiles);
 
         // Create the diff
         self._toBeDownloaded = Object.keys(newFiles)
@@ -118,7 +117,10 @@ AppLoader.prototype.download = function(onprogress){
       self._updateReady = true;
       return self.newManifest;
     },function(files){
-      self.cache.remove(files);
+      // on download error, remove files...
+      if(!!files && files.length){
+        self.cache.remove(files);
+      }
       return files;
     });
 };
