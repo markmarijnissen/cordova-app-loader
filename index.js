@@ -1,6 +1,14 @@
 var CordovaFileCache = require('cordova-file-cache');
 var Promise = null;
 
+function createFilemap(files){
+  var result = {};
+  Object.keys(files).forEach(function(key){
+    result[files[key].filename] = files[key];
+  });
+  return result;
+}
+
 function AppLoader(options){
   if(!options) throw new Error('CordovaAppLoader has no options!');
   if(!options.fs) throw new Error('CordovaAppLoader has no "fs" option (cordova-promise-fs)');
@@ -42,12 +50,16 @@ AppLoader.prototype.check = function(newManifest){
           reject('Downloaded Manifest has no "files" attribute.');
           return;
         }
-  
+        
+        var newFiles = createFilemap(newManifest.files);
+        var oldFiles = createFilemap(manifest.files);
+        console.log(newFiles,oldFiles);
+
         // Create the diff
-        self._toBeDownloaded = Object.keys(newManifest.files)
+        self._toBeDownloaded = Object.keys(newFiles)
           .filter(function(file){
-            return !manifest.files[file]
-                   || manifest.files[file].version !== newManifest.files[file].version
+            return !oldFiles[file]
+                   || oldFiles[file].version !== newFiles[file].version
                    || !self.cache.isCached(file);
           });
         
@@ -57,7 +69,7 @@ AppLoader.prototype.check = function(newManifest){
               return file.substr(self.cache._localRoot.length);
             })
             .filter(function(file){
-              return !newManifest.files[file];
+              return !newFiles[file];
             })
             .concat(self._toBeDownloaded);
             
@@ -111,11 +123,11 @@ AppLoader.prototype.download = function(onprogress){
     });
 };
 
-AppLoader.prototype.update = function(){
+AppLoader.prototype.update = function(reload){
   if(this._updateReady) {
     // update manifest
     localStorage.setItem('manifest',JSON.stringify(this.newManifest));
-    location.reload();
+    if(reload !== false) location.reload();
     return true;
   }
   return false;

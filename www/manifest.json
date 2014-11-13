@@ -1,28 +1,36 @@
 {
   "files": {
-    "lib/jquery.min.js": {
-      "version": "afb90752e0a90c24b7f724faca86c5f3d15d1178"
+    "jquery": {
+      "version": "afb90752e0a90c24b7f724faca86c5f3d15d1178",
+      "filename": "lib/jquery.min.js"
     },
-    "lib/bootstrap.min.css": {
-      "version": "35e0b4e5ac71901d9919b1a32b5ae69cc660d470"
+    "bootstrap": {
+      "version": "35e0b4e5ac71901d9919b1a32b5ae69cc660d470",
+      "filename": "lib/bootstrap.min.css"
     },
-    "lib/bluebird.js": {
-      "version": "f37ff9832449594d1cefe98260cae9fdc13e0749"
+    "bluebird": {
+      "version": "f37ff9832449594d1cefe98260cae9fdc13e0749",
+      "filename": "lib/bluebird.js"
     },
-    "lib/CordovaPromiseFS.js": {
-      "version": "635bd29385fe6664b1cf86dc16fb3d801aa9461a"
+    "CordovaPromiseFS": {
+      "version": "635bd29385fe6664b1cf86dc16fb3d801aa9461a",
+      "filename": "lib/CordovaPromiseFS.js"
     },
-    "lib/CordovaAppLoader.js": {
-      "version": "76f1eecd3887e69d7b08c60be4f14f90069ca8b8"
+    "CordovaAppLoader": {
+      "version": "76f1eecd3887e69d7b08c60be4f14f90069ca8b8",
+      "filename": "lib/CordovaAppLoader.js"
     },
-    "template.html": {
-      "version": "3e70f2873de3d9c91e31271c1a59b32e8002ac23"
+    "template": {
+      "version": "3e70f2873de3d9c91e31271c1a59b32e8002ac23",
+      "filename": "template.html"
     },
-    "app.js": {
-      "version": "8c99369a825644e68e21433d78ed8b396351cc7d"
+    "app": {
+      "version": "8c99369a825644e68e21433d78ed8b396351cc7d",
+      "filename": "app.js"
     },
-    "style.css": {
-      "version": "6e76f36f27bf29402a70c8adfee0f84b8a595973"
+    "style": {
+      "version": "6e76f36f27bf29402a70c8adfee0f84b8a595973",
+      "filename": "style.css"
     }
   },
   "load": [

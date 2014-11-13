@@ -34,19 +34,18 @@ try {
   process.exit(1);
 }
 
-var versionChecksum = "";
-for(var key in manifest.files) {
-  try {
-    var filename = manifest.files[key].filename;
-    var version = checksum(path.resolve(rootDir,filename));
-    versionChecksum += version;
-    manifest.files[key].version = version;
-  } catch(e){
-    console.error('Could not hash file.',e);
+var newFiles = {};
+for(var filename in manifest.files) {
+  if(!manifest.files[filename].filename){
+    var key = path.basename(filename);
+    key = key.substr(0,key.indexOf('.'));
+    newFiles[key] = manifest.files[filename];
+    newFiles[key].filename = filename;
+  } else {
+    newFiles[filename] = manifest.files[filename];
   }
 }
-
-manifest.version = crypto.createHash('sha1').update(versionChecksum).digest('hex');
+manifest.files = newFiles;
 
 try {
   fs.writeFileSync(
