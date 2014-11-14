@@ -2,9 +2,12 @@ cordova-app-loader
 ==========
 > Remote update your Cordova App
 
-1. Write a manifest.json to describe the files of your app.
-2. Upload the manifest and files to a server
-3. Let `CordovaAppLoader` check the new manifest, download files and update your app!
+1. Write a manifest.json to describe files
+2. Upload manifest.json and files
+3. Use `CordovaAppLoader` to 
+   1. Check the new manifest, 
+   2. Download files 
+   3. Update your app!
 
 Based on [cordova-promise-fs](https://github.com/markmarijnissen/cordova-promise-fs) and [cordova-file-cache](https://github.com/markmarijnissen/cordova-file-cache).
 
