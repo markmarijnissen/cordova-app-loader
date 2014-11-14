@@ -100,7 +100,6 @@ var CordovaAppLoader =
 	        
 	        var newFiles = createFilemap(newManifest.files);
 	        var oldFiles = createFilemap(manifest.files);
-	        console.log(newFiles,oldFiles);
 
 	        // Create the diff
 	        self._toBeDownloaded = Object.keys(newFiles)
@@ -165,7 +164,10 @@ var CordovaAppLoader =
 	      self._updateReady = true;
 	      return self.newManifest;
 	    },function(files){
-	      self.cache.remove(files);
+	      // on download error, remove files...
+	      if(!!files && files.length){
+	        self.cache.remove(files);
+	      }
 	      return files;
 	    });
 	};
@@ -202,7 +204,6 @@ var CordovaAppLoader =
 	var hash = __webpack_require__(2);
 	var Promise = null;
 	var isCordova = typeof cordova !== 'undefined';
-	var SERVER_DETECT = isCordova? '://':'filesystem:';
 
 	if(!isCordova) {
 	  window.ProgressEvent = function ProgressEvent(){}
@@ -266,6 +267,7 @@ var CordovaAppLoader =
 	};
 
 	FileCache.prototype.add = function add(urls){
+	  if(!urls) urls = [];
 	  if(typeof urls === 'string') urls = [urls];
 	  var self = this;
 	  urls.forEach(function(url){
@@ -278,6 +280,7 @@ var CordovaAppLoader =
 	};
 
 	FileCache.prototype.remove = function remove(urls,returnPromises){
+	  if(!urls) urls = [];
 	  var promises = [];
 	  if(typeof urls === 'string') urls = [urls];
 	  var self = this;
@@ -425,7 +428,7 @@ var CordovaAppLoader =
 
 	FileCache.prototype.toServerURL = function toServerURL(path){
 	  if(path[0] === '/') path = path.substr(1);
-	  return path.indexOf(SERVER_DETECT) < 0? this._serverRoot + path: path;
+	  return path.indexOf('://') < 0? this._serverRoot + path: path;
 	};
 
 	/**
