@@ -2,10 +2,10 @@ cordova-app-loader
 ==========
 > Remote update your Cordova App
 
-1. Write a `manifest.json` to describe which files your app uses.
+1. Write a manifest.json to describe which files your app uses.
 2. Build and deploy your Cordova App.
-3. Update your app. Upload the new `manifest.json` together with the files to a server.
-4. `CordovaAppLoader` will check this `manifest.json`, download new files, and relaunch!
+3. Update your app. Upload the new manifest.json together with the files to a server.
+4. `CordovaAppLoader` will check this manifest.json, download new files, and relaunch!
 
 Based on [cordova-promise-fs](https://github.com/markmarijnissen/cordova-promise-fs) and [cordova-file-cache](https://github.com/markmarijnissen/cordova-file-cache).
 
@@ -13,9 +13,9 @@ Based on [cordova-promise-fs](https://github.com/markmarijnissen/cordova-promise
 
 ### Get javascript
 
-Download and include [CordovaPromiseFS.js](https://raw.githubusercontent.com/markmarijnissen/cordova-promise-fs/master/dist/CordovaPromiseFS.js) and [CordovaAppLoader.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/lib/CordovaAppLoader.js)
+Download and include [CordovaPromiseFS.js](https://raw.githubusercontent.com/markmarijnissen/cordova-promise-fs/master/dist/CordovaPromiseFS.js), [CordovaAppLoader.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/lib/CordovaAppLoader.js) and [bootstrap.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/bootstrap.js).
 
-With `npm` or `bower`:
+With npm or bower:
 
 ```bash
   bower install cordova-app-loader cordova-promise-fs
@@ -45,20 +45,22 @@ cordova plugin add org.apache.cordova.file-transfer
 cordova run ios
 ```
 
-**Note:** Want to run your own server? Modify `serverRoot` in `www/test/test.js`!
+**Note:** Want to run your own server? Modify `serverRoot` in `www/app.js`!
 
 ## Usage
 
 ### Overview
 
-1. Write `manifest.json` to describe your app files
-2. Add `bootstrap.js` script to your `index.html` to dynamically load JS and CSS.
+1. Write a manifest.json
+2. Add bootstrap.js script to your index.html
 3. Instantiate a `CordovaAppLoader`
-4. Check for updates: Download a new `manifest.json`
-5. Download (only files that have changed!)
-6. Apply update: Store the new manifest and reload page to bootstrap the updated app!
+4. Check for updates
+5. Download new files
+6. Apply update
 
-### Step 1: Write a `manifest.json`
+### Step 1: Write a manifest.json
+
+Describe which files to download and which files to load during bootstrap.
 
 ```javascript
 {
@@ -108,31 +110,27 @@ cordova run ios
 You can update your existing manifest like this:
 
 ```bash
-bin/update-manifest www www/manifest.json
+node bin/update-manifest www www/manifest.json
+node bin/update-manifest [root-directory] [manifest.json]
 ```
 
-It will update file versions (by hashing the content, so only changed files will update).
-
-* `www` is the root directory for the files
-* `www/manifest.json` is the manifest to be updated.
-
+It will update the version of only changed files (with a hash of the content).
 
 ### Step 2: Add [bootstrap.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/bootstrap.js) to your [index.html](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/index.html)
+
+Retrieves manifest.json and dynamically inserts JS/CSS to the current page.
 
 ```html
   <script type="text/javascript" timeout="5000" manifest="manifest.json" src="bootstrap.js"></script>
 ```
 
-* On the first run, the bootstrap script retrieves `manifest.json` and starts loading JS/CSS in `manifest.load`.
-* The `manifest.json` is stored in localStorage for the second run.
-* If after `timeout` milliseconds `window.BOOTSTRAP_OK` is **not** true, the (corrupt?) manifest in localStorage is destroyed, and the page will reload.
+On the second run, the manifest.json is retrieved from localStorage.
 
-Make sure you set `window.BOOTSTRAP_OK = true` when your app has succesfully loaded!
+If after `timeout` milliseconds `window.BOOTSTRAP_OK` is **not** true, the (corrupt?) manifest in localStorage is destroyed, and the page will reload. So make sure you set `window.BOOTSTRAP_OK = true` when your app has succesfully loaded!
 
-**Tips:**
+**Tip:**
 
-* Bundle a `manifest.json` with your app. This way, your app will also launch when not connected to the internet.
-* When your app is updated, it will write a new `manifest.json` to localStorage. If this update is corrupt, it can safely revert to the bundled `manifest.json`
+Bundle a manifest.json with your app. This way, your app will also launch when not connected to the internet. When your app is updated, it will write a new manifest.json to localStorage. If this update is corrupt, it can safely revert to the bundled manifest.json
 
 ### Step 3: Intialize CordovaAppLoader
 
@@ -142,7 +140,7 @@ var loader = window.loader = new CordovaAppLoader({
   fs: fs,
   serverRoot: 'http://data.madebymark.nl/cordova-app-loader/',
   localRoot: 'app',
-  mode: 'mirror',
+  mode: 'mirror',   // use same directories and filenames as in manifest (instead of using a hash)
   cacheBuster: true // make sure we're not downloading cached files.
 });
 ```
@@ -151,7 +149,7 @@ var loader = window.loader = new CordovaAppLoader({
 
 ```javascript
 // download manifest from: serverRoot+'manifest.json'
-loader.check().then( ... )  
+loader.check().then(function(updateAvailable) { ... })  
 
 // download from custom url
 loader.check('http://yourserver.com/manifest.json').then( ... ) 
@@ -160,20 +158,20 @@ loader.check('http://yourserver.com/manifest.json').then( ... )
 loader.check({ files: { ... } }).then( ... ) 
 ```
 
-**Note:** Check returns `true` or `false` when a new version is available. **Only file versions are compared ** - if you change other data (like `manifest.load`) then `manifest.check()` will return `false`!
+**Implementation Note:** Only file versions are compared! If you, for example, update `manifest.load` then the promise will return `false`!
 
 ### Step 5: Download update
 
 ```javascript
-loader.download(onprogress).then(function(manifest){ ... },function(failedDownloadUrlArray){ ... });
+loader.download(onprogress)
+   .then(function(manifest){ ... },function(failedDownloadUrlArray){ ... });
 ```
 
-**Note:** When downloading, invalid files are deleted first. This invalidates the current manifest. Therefore, the current manifest is removed from localStorage! The app is reverted to "factory settings" (the `manifest.json` that comes bundled with the app).
+**Note:** When downloading, invalid files are deleted first. This invalidates the current manifest. Therefore, the current manifest is removed from localStorage. The app is reverted to "factory settings" (the manifest.json that comes bundled with the app).
 
 ### Step 6: Apply update (reload page to bootstrap new files)
 
-When download is a success, the new manifest can be written to localStorage. 
-When the page is reloaded, it will load the app update.
+This writes the new manifest to localStorage and reloads the page to bootstrap the updated app.
 
 ```javascript
 // write manifest to localStorage and reload page:
@@ -183,13 +181,13 @@ loader.update() // returns `true` when update can be applied
 loader.update(false)
 ```
 
-**Note:** CordovaAppLoader changes the `manifest.root` to point to the file cache - otherwise the bootstrap script can't find the downloaded files!
+**Implementation Note:** CordovaAppLoader changes the `manifest.root` to point to your file cache - otherwise the bootstrap script can't find the downloaded files!
 
 ## Changelog
 
 ### 0.4.0 (13/11/2014)
 
-* Changed `manifest.json` format.
+* Changed manifest.json format.
 
 ### 0.3.0 (13/11/2014)
 
