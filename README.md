@@ -43,6 +43,8 @@ With npm or bower:
 
 Check out [Cordova App Loader](http://data.madebymark.nl/cordova-app-loader/index.html) in Chrome for a demo! (**Chrome only!**)
 
+Or run on your own computer:
+
 ```bash
 git clone git@github.com:markmarijnissen/cordova-app-loader.git
 cd cordova-app-loader
