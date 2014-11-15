@@ -13,11 +13,11 @@
       "filename": "lib/bluebird.js"
     },
     "CordovaPromiseFS": {
-      "version": "635bd29385fe6664b1cf86dc16fb3d801aa9461a",
+      "version": "58f3b1d28ea7dda0c1c336360b26f92e3f24731e",
       "filename": "lib/CordovaPromiseFS.js"
     },
     "CordovaAppLoader": {
-      "version": "76f1eecd3887e69d7b08c60be4f14f90069ca8b8",
+      "version": "d6a10cd44da1ac10216593b735d9fe9f8acc22b6",
       "filename": "lib/CordovaAppLoader.js"
     },
     "template": {
@@ -25,7 +25,7 @@
       "filename": "template.html"
     },
     "app": {
-      "version": "8c99369a825644e68e21433d78ed8b396351cc7d",
+      "version": "812c8c5632e276d6456dca04d624200fd1acb6c7",
       "filename": "app.js"
     },
     "this-file-does-not-exist": {
@@ -41,5 +41,5 @@
     "lib/CordovaAppLoader.js",
     "app.js"
   ],
-  "version": "231d0a27056ae367ba7aa0e2272f115c48e4eeed"
+  "version": "1c0ed311c287e8de55b9f45c1fa0474dae2622c9"
 }

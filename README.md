@@ -151,6 +151,7 @@ var loader = window.loader = new CordovaAppLoader({
   localRoot: 'app',
   mode: 'mirror',   // use same directories and filenames as in manifest (instead of using a hash)
   cacheBuster: true // make sure we're not downloading cached files.
+  checkTimeout: 10000 // timeout for the "check" function - when you loose internet connection
 });
 ```
 
@@ -192,7 +193,79 @@ loader.update(false)
 
 **Implementation Note:** CordovaAppLoader changes the `manifest.root` to point to your file cache - otherwise the bootstrap script can't find the downloaded files!
 
+## Design Decisions
+
+I want CordovaAppLoader to be fast, responsive, reliable and safe. In order to do this, I've made the following decisions:
+
+### Loading JS/CSS dynamically using bootstrap.js
+
+First, I wanted to download 'index.html' to storage, then redirect the app to this new index.html.
+
+This has a few problems:
+
+* `cordova.js` and plugin javascript cannot be found. 
+* It is hard to include `cordova.js` in the manifest because it is platform specific.
+* It is hard to find all plugin javascript - it is buried in Cordova internals. 
+* Reloading a page costs more time, CPU and memory because cordova plugins are reset.
+
+Dynamically inserting CSS and JS allows you for almost the same freedom in updates, without all these problems.
+
+### Fast, reliable and performant downloads:
+
+* To save bandwidth and time, only files that have changed are downloaded.
+* CordovaPromiseFS limits concurrency (3) to avoid trashing your app.
+* CordovaFileCache will retry the download up to 3 times - each with an increasing timeout.
+* When executing `loader.download()` for the second time, old downloads are aborted.
+* "onprogress" event is called explicitly on every download. 
+
+### Responsive app: Avoid never-resolving promises
+
+`check` and `download` return a promise. These promises should always resolve - i.e. don't wait forever for a "deviceready" or for a "manifest.json" AJAX call to return.
+
+I am assuming the following promises resolve or reject sometime:
+
+* requestFileSystem
+* CordovaPromiseFS methods:
+    * fs.deviceready (Rejected after timeout of 5 seconds).
+    * fs.file() (Relies on `fs.root.getFile`)
+    * fs.dir() (Relies on `fs.root.getDirectory`)
+    * fs.ensure() (Recursively relies on `getDirectory`)
+    * fs.list() (Relies on fs.dir() and `dirReader.readEntries`)
+    * fs.remove() (Relies on `fileEntry.remove`)
+    * fs.download() (Implemented as a concurrency-limited queue, in which failed downloads can re-add themselves to the queue before rejecting the promise, this promise ultimately relies on Cordova's `filetransfer.download()` to resolve the promise)
+
+* XHR-request to fetch manifest.json (Rejected after timeout)
+
+As you see, most methods rely on the succes/error callbacks of native/Cordova methods.
+
+Only for `deviceready` and the XHR-request I've added timeouts to ensure a timely response.
+
+### Offline - when you loose connection.
+
+When using `check`: The XHR will timeout.
+
+When using `download`: I am assuming Cordova will invoke the error callback. The download has a few retry-attempts. If the connetion isn't restored before the last retry-attemt, the download will fail.
+
+### Crashes
+
+The only critical moment is during a download. Old files are removed while new files aren't fully downloaded yet. This makes the current manifest point to missing or corrupt files. Therefore, before downloading, the current manifest is destroyed. 
+
+If the app crashes during a download, it will restart using the original manifest.
+
+### Bugs in the update
+
+* When `BOOTSTRAP_OK` is not set to `true` after a timeout, the app will destroy the current manifest and revert back to the original manifest.
+
+### More to be considered?
+
+Let me know if you find bugs. Report an issue!
+
+
 ## Changelog
+
+### 0.5.0 (15/11/2014)
+
+* Reject XHR-request when checking.
 
 ### 0.4.0 (13/11/2014)
 

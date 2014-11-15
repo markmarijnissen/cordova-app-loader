@@ -79,6 +79,7 @@ var CordovaAppLoader =
 	  this._toBeDeleted = [];
 	  this._toBeDownloaded = [];
 	  this._updateReady = false;
+	  this._checkTimeout = options.checkTimeout || 10000;
 	}
 
 	AppLoader.prototype.check = function(newManifest){
@@ -134,6 +135,7 @@ var CordovaAppLoader =
 	      checkManifest(newManifest);
 	    } else {
 	      pegasus(self.newManifestUrl).then(checkManifest,reject);
+	      setTimeout(function(){reject(new Error('timeout'));},self._checkTimeout);
 	    }
 	  });
 	};
