@@ -2,8 +2,7 @@ cordova-app-loader
 ==========
 > Remote update your Cordova App
 
-1. Write a **manifest.json** to describe files of your app.
-2. Use the **manifest.json** to **bootstrap** your app.
+2. Write a **manifest.json** to **bootstrap.js** your app.
 3. Build and deploy your app.
 
 A little later...
