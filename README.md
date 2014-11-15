@@ -55,12 +55,9 @@ You can download the files (see "Quickstart" or "Usage") or use NPM or bower:
 
 **IMPORTANT:** For iOS, use Cordova 3.7.0 or higher (due to a [bug](https://github.com/AppGyver/steroids/issues/534) that affects requestFileSystem).
 
-## Quickstart: A simple implementation.
+## Quickstart: A simple example
 
-Download:
-
-* [index.html](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.html)
-* [autoupdate.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.js)
+Download [index.html](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.html) and [autoupdate.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.js).
 
 1. Write a **manifest.json** (see "step 1" below)
 2. Copy **index.html** and **autoupdate.js** to your `www` folder.
@@ -77,7 +74,7 @@ Make sure you set the correct options in `index.html`:
     src="autoupdate.js"></script>
 ```
 
-**autoupdate.js** is a very simple implementation of the CordovaAppLoader. It includes all nessecary files (see "Usage") and implementes very simple update logic.
+**autoupdate.js** is a very simple usage of the `CordovaAppLoader` ([see code](https://github.com/markmarijnissen/cordova-app-loader/blob/master/autoupdate.js)). It includes all nessecary files (see "Usage") and implementes very simple update logic.
 
 * Whenever you launch or resume the app,
 * `check()` for a new manifest
