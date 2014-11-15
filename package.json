@@ -1,6 +1,6 @@
 {
   "name": "cordova-app-loader",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Cordova App Loader - remote update your cordova app",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "cordova-app-loader": "webpack index.js www/lib/CordovaAppLoader.js --output-library CordovaAppLoader --output-library-target var",
     "bootstrap": "uglifyjs -m --screw-ie8 bootstrap.js > www/bootstrap.js",
     "autoupdate": "webpack autoupdate.js www/autoupdate.js -p",
-    "prepublish": "npm run-script autoupdate && bootstrap && npm run-script cordova-promise-fs && npm run-script cordova-app-loader",
+    "prepublish": "npm run autoupdate && npm run bootstrap && npm run cordova-promise-fs && npm run cordova-app-loader",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -21,7 +21,7 @@
   "author": "Mark Marijnissen",
   "license": "MIT",
   "dependencies": {
-    "cordova-file-cache": "^0.4.1"
+    "cordova-file-cache": "^0.5.0"
   },
   "devDependencies": {
     "promiscuous": "^0.6.0"

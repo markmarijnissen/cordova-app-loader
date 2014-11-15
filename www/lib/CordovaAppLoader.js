@@ -414,7 +414,7 @@ var CordovaAppLoader =
 	FileCache.prototype.toInternalURL = function toInternalURL(url){
 	  path = this.toPath(url);
 	  if(this._cached[path]) return this._cached[path].toInternalURL;
-	  return this._fs.toInternalURLSync(path);
+	  return this.toServerURL(path);
 	};
 
 	FileCache.prototype.get = FileCache.prototype.toInternalURL;
@@ -423,9 +423,9 @@ var CordovaAppLoader =
 	  return this._fs.toDataURL(this.toPath(url));
 	};
 
-	FileCache.prototype.toURL = function toInternalURL(url){
+	FileCache.prototype.toURL = function toURL(url){
 	  path = this.toPath(url);
-	  return this._cached[path]? this._cached[path].toURL: url;
+	  return this._cached[path]? this._cached[path].toURL: this.toServerURL(url);
 	};
 
 	FileCache.prototype.toServerURL = function toServerURL(path){
