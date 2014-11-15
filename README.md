@@ -11,9 +11,9 @@ A little later...
 
 1. Upload an update to your server (**manifest.json** + files)
 2. Use `CordovaAppLoader` to 
-   1. Check for a new manifest
-   2. Download files
-   3. Update your app!
+   1. `check()` for a new manifest
+   2. `download()` files
+   3. `update()` your app!
 
 Based on [cordova-promise-fs](https://github.com/markmarijnissen/cordova-promise-fs) and [cordova-file-cache](https://github.com/markmarijnissen/cordova-file-cache).
 
