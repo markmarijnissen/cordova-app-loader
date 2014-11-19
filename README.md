@@ -217,7 +217,7 @@ You should always bundle a manifest.json (+ files) in your app to make sure your
 
 ```javascript
 // When using NPM, require these first.
-// Otherwise these are available as global variables.
+// When using bower or when you downloaded the files these are already available as global variables.
 var CordovaPromiseFS = require('cordova-promise-fs');
 var CordovaAppLoader = require('cordova-app-loader');
 var Promise = require('bluebird');
