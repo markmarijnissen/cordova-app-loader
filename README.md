@@ -212,7 +212,7 @@ On the second run, the manifest.json is retrieved from localStorage.
 
 Set `window.BOOTSTRAP_OK` to `true` when your app has succesfully launched.
 
-If your app is updated and `window.BOOTSTRAP_OK` is **not** true, the corrupt manifest in localStorage is destroyed, and the page will reload. This will revert the app back to the original manifest.
+If your app is updated and `window.BOOTSTRAP_OK` is **not** true after `timeout` milliseconds, the corrupt manifest in localStorage is destroyed, and the page will reload. This will revert the app back to the original manifest.
 
 You should always bundle a manifest.json (+ files) in your app to make sure your app has a "factory default" to revert back to. (And to make sure your app works offline).
 
@@ -280,7 +280,7 @@ loader.update(false)
 
 ## Design Decisions
 
-I want CordovaAppLoader to be fast, responsive, reliable and safe. In order to do this, I've made the following decisions:
+I want CordovaAppLoader to be fast, responsive, flexible, reliable and safe. In order to do this, I've made the following decisions:
 
 ### Loading JS/CSS dynamically using bootstrap.js
 
@@ -341,7 +341,7 @@ If the app crashes during a download, it will restart using the original manifes
 
 * When `BOOTSTRAP_OK` is not set to `true` after a timeout, the app will destroy the current manifest and revert back to the original manifest.
 
-### Flexibility
+### Four files for flexibility
 
 Yes, you need to include four files - but this is to create flexibility.
 
@@ -352,7 +352,7 @@ Yes, you need to include four files - but this is to create flexibility.
 
 If you don't care about this, you can use [autoupdate.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.js) as describe in QuickStart above.
 
-**TODO:** Include `CordovaPromiseFS.js` in the `CordovaAppLoader.js` build?
+**TODO:** Include `CordovaPromiseFS.js` in the `CordovaAppLoader.js` build, just like the CordovaFileCache. I need to make sure CordovaPromiseFS and CordovaFileCache are globally available then.
 
 ### More to be considered?
 
@@ -360,13 +360,20 @@ Let me know if you find bugs. Report an issue!
 
 ## TODO
 
-* Update **autoupdate.js** example
+* Create a demo for **autoupdate.js**
 * Include CordovaPromiseFS in the CordovaAppLoader build. Create a default instance if no CordovaPromiseFS instance is passed as option.
 * Write automatic tests? (Is this possible?)
 * Document and double-check all the urls and paths. (Especially: Do `serverUrl` and `Manifest.root` work together as expected?)
 
 
 ## Changelog
+
+### 0.6.0 (19/11/2014)
+
+* Created a `dist` folder to for all build files
+* Fixed a few errors
+* Updated readme
+* Changed the autoupdate.js implementation (it doesn't include bootstrap.js anymore)
 
 ### 0.5.0 (15/11/2014)
 
