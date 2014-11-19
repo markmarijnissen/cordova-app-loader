@@ -1,2 +1,1325 @@
-!function(t){function e(o){if(n[o])return n[o].exports;var r=n[o]={exports:{},id:o,loaded:!1};return t[o].call(r.exports,r,r.exports,e),r.loaded=!0,r.exports}var n={};return e.m=t,e.c=n,e.p="",e(0)}([function(t,e,n){function o(){c.check().then(function(){return c.download()}).then(function(){return c.update()},function(t){console.error("Auto-update error:",t)})}function r(){document.webkitHidden||o()}n(1);var i=n(2),s=n(5),a=n(6);window.setImmediate=window.setTimeout;var u,c,f,d,l="undefined"!=typeof cordova;if(f=document.querySelector("script[manifest]"),f&&(d=f.getAttribute("server"),!d))throw new Error('Add a "server" attribute to the autoupdate.js script!');u=new s({persistent:l,Promise:a}),c=new i({fs:u,localRoot:"app",serverRoot:d,mode:"mirror",cacheBuster:!0}),o(),u.deviceready.then(function(){document.addEventListener("resume",o)}),document.addEventListener("webkitvisibilitychange",r,!1)},function(){!function(){function t(t,e,n){function o(){var e=s.shift();e&&("/"===e[0]&&(e=e.substr(1)),e=t.root+e,".js"===e.substr(-3)?(r=document.createElement("script"),r.type="text/javascript",r.src=e,r.onload=o):(r=document.createElement("link"),r.rel="stylesheet",r.href=e,r.type="text/css",setTimeout(o,0)),i.appendChild(r))}if(!t.load)return void console.error("Manifest has nothing to load (manifest.load is empty).",t);var r,i=document.getElementsByTagName("head")[0],s=t.load.concat();t.root=t.root||"./",t.root.length>0&&"/"!==t.root[t.root.length-1]&&(t.root+="/"),e||localStorage.setItem("manifest",JSON.stringify(t)),"cdvfile"===t.root.substr(0,7)?document.addEventListener("deviceready",o,!1):o(),window.Manifest=t,e&&setTimeout(function(){window.BOOTSTRAP_OK||(localStorage.removeItem("manifest"),location.reload())},n)}window.pegasus=function(t,e){return e=new XMLHttpRequest,e.open("GET",t),t=[],e.onreadystatechange=e.then=function(n,o,r){n.call&&(t=[n,o]),4==e.readyState&&(r=t[0|e.status/400],r&&r(200===e.status||0===e.status?JSON.parse(e.responseText):e))},e.send(),e},window.Manifest={};var e=JSON.parse(localStorage.getItem("manifest")),n=document.querySelector("script[manifest]");if(e)t(e,!0,n.getAttribute("timeout")||1e4);else{var o=(n?n.getAttribute("manifest"):null)||"manifest.json";pegasus(o).then(t,function(t){console.error("Could not download "+o+": "+t.status)})}}()},function(t,e,n){function o(t){var e={};return Object.keys(t).forEach(function(n){e[t[n].filename]=t[n]}),e}function r(t){if(!t)throw new Error("CordovaAppLoader has no options!");if(!t.fs)throw new Error('CordovaAppLoader has no "fs" option (cordova-promise-fs)');if(!t.serverRoot)throw new Error('CordovaAppLoader has no "serverRoot" option.');if(!window.pegasus||!window.Manifest)throw new Error("CordovaAppLoader bootstrap.js is missing.");s=t.fs.Promise,this.manifest=window.Manifest,this.newManifest=null,t.serverRoot=t.serverRoot||"",t.serverRoot&&"/"!==t.serverRoot[t.serverRoot.length-1]&&(t.serverRoot+="/"),this.newManifestUrl=t.serverRoot+(t.manifest||"manifest.json"),this.cache=new i(t),this._toBeDeleted=[],this._toBeDownloaded=[],this._updateReady=!1,this._checkTimeout=t.checkTimeout||1e4}var i=n(3),s=null;r.prototype.check=function(t){var e=this,n=this.manifest;return new s(function(r,i){function s(t){e.cache.ready.then(function(){if(!t.files)return void i('Downloaded Manifest has no "files" attribute.');var s=o(t.files),a=o(n.files);e._toBeDownloaded=Object.keys(s).filter(function(t){return!a[t]||a[t].version!==s[t].version||!e.cache.isCached(t)}),e.cache.list().then(function(n){e._toBeDeleted=n.map(function(t){return t.substr(e.cache._localRoot.length)}).filter(function(t){return!s[t]}).concat(e._toBeDownloaded),e._toBeDeleted.length>0||e._toBeDownloaded.length>0?(e.newManifest=t,e.newManifest.root=e.cache.toInternalURL("/")+(e.newManifest.root||""),r(!0)):r(!1)},i)},i)}"string"==typeof t&&(e.newManifestUrl=t,t=void 0),"object"==typeof t?s(t):(pegasus(e.newManifestUrl).then(s,i),setTimeout(function(){i(new Error("timeout"))},e._checkTimeout))})},r.prototype.canDownload=function(){return!!this.newManifest&&!this._updateReady},r.prototype.canUpdate=function(){return this._updateReady},r.prototype.download=function(t){var e=this;return e.canDownload()?(localStorage.removeItem("manifest"),this.manifest.files=Manifest.files={},e.cache.remove(e._toBeDeleted,!0).then(function(){return e.cache.add(e._toBeDownloaded),e.cache.download(t)}).then(function(){return e._toBeDeleted=[],e._toBeDownloaded=[],e._updateReady=!0,e.newManifest},function(t){return t&&t.length&&e.cache.remove(t),t})):s.resolve(null)},r.prototype.update=function(t){return this._updateReady?(localStorage.setItem("manifest",JSON.stringify(this.newManifest)),t!==!1&&location.reload(),!0):!1},r.prototype.clear=function(){return localStorage.removeItem("manifest"),this.cache.clear()},r.prototype.reset=function(){return this.clear().then(function(){location.reload()},function(){location.reload()})},t.exports=r},function(t,e,n){function o(t){if(this._fs=t.fs,!this._fs)throw new Error('Missing required option "fs". Add an instance of cordova-promise-fs.');i=this._fs.Promise,this._mirrorMode="hash"!==t.mode,this._retry=t.retry||[500,1500,8e3],this._cacheBuster=!!t.cacheBuster,this._localRoot=t.localRoot||"data","/"!==this._localRoot[this._localRoot.length-1]&&(this._localRoot+="/"),"/"!==this._localRoot[0]&&(this._localRoot="/"+this._localRoot),this._serverRoot=t.serverRoot||"",this._serverRoot&&"/"!==this._serverRoot[this._serverRoot.length-1]&&(this._serverRoot+="/"),"./"===this._serverRoot&&(this._serverRoot=""),this._downloading=[],this._added=[],this._cached={},this.ready=this.list()}var r=n(4),i=null,s="undefined"!=typeof cordova;s||(window.ProgressEvent=function(){}),o.prototype.list=function(){var t=this;return new i(function(e){t._fs.list(t._localRoot,"rfe").then(function(n){t._cached={},n=n.map(function(e){return t._cached[e.fullPath]={toInternalURL:s?e.toInternalURL():e.toURL(),toURL:e.toURL()},e.fullPath}),e(n)},function(){e([])})})},o.prototype.add=function(t){t||(t=[]),"string"==typeof t&&(t=[t]);var e=this;return t.forEach(function(t){t=e.toServerURL(t),-1===e._added.indexOf(t)&&e._added.push(t)}),e.isDirty()},o.prototype.remove=function(t,e){t||(t=[]);var n=[];"string"==typeof t&&(t=[t]);var o=this;return t.forEach(function(t){var e=o._added.indexOf(o.toServerURL(t));e>=0&&o._added.splice(e,1);var r=o.toPath(t);n.push(o._fs.remove(r)),delete o._cached[r]}),e?i.all(n):o.isDirty()},o.prototype.getDownloadQueue=function(){var t=this,e=t._added.filter(function(e){return!t.isCached(e)});return e},o.prototype.getAdded=function(){return this._added},o.prototype.isDirty=function(){return this.getDownloadQueue().length>0},o.prototype.download=function(t){var e=this._fs,n=this;return n.abort(),new i(function(o,r){e.ensure(n._localRoot).then(function(){return n.list()}).then(function(){if(!n.isDirty())return void o(n);var i=n.getDownloadQueue(),s=[],a=n._downloading.length,u=n._downloading.length,c=n._downloading.length+i.length;i.forEach(function(i){var f,d=n.toPath(i);"function"==typeof t&&(f=function(e){e.queueIndex=a,e.queueSize=c,e.url=i,e.path=d,e.percentage=a/c,e.loaded>0&&e.total>0&&a!==c&&(e.percentage+=e.loaded/e.total/c),s.indexOf(i)<0&&(s.push(i),a++),t(e)});var l=function(){u++,u===c&&(n._downloading=[],n.list().then(function(){f&&f(new ProgressEvent),n.isDirty()?r(n.getDownloadQueue()):o(n)},r))},h=i;n._cacheBuster&&(h+="?"+Date.now());var p=e.download(i,d,{retry:n._retry},f);p.then(l,l),n._downloading.push(p)})},r)})},o.prototype.abort=function(){this._downloading.forEach(function(t){t.abort()}),this._downloading=[]},o.prototype.isCached=function(t){return t=this.toPath(t),!!this._cached[t]},o.prototype.clear=function(){return this._cached={},this._fs.removeDir(this._localRoot)},o.prototype.toInternalURL=function(t){return path=this.toPath(t),this._cached[path]?this._cached[path].toInternalURL:this._fs.toInternalURLSync(t)},o.prototype.get=function(t){return path=this.toPath(t),this._cached[path]?this._cached[path].toInternalURL:this.toServerURL(t)},o.prototype.toDataURL=function(t){return this._fs.toDataURL(this.toPath(t))},o.prototype.toURL=function(t){return path=this.toPath(t),this._cached[path]?this._cached[path].toURL:t},o.prototype.toServerURL=function(t){return"/"===t[0]&&(t=t.substr(1)),t.indexOf("://")<0?this._serverRoot+t:t},o.prototype.toPath=function(t){return this._mirrorMode?(t=t||"",len=this._serverRoot.length,t.substr(0,len)!==this._serverRoot?("/"===t[0]&&(t=t.substr(1)),this._localRoot+t):this._localRoot+t.substr(len)):this._localRoot+r(t)+t.substr(t.lastIndexOf("."))},t.exports=o},function(t){function e(t,e){var n,o,r,i,s,a,u,c;for(n=3&t.length,o=t.length-n,r=e,s=3432918353,a=461845907,c=0;o>c;)u=255&t.charCodeAt(c)|(255&t.charCodeAt(++c))<<8|(255&t.charCodeAt(++c))<<16|(255&t.charCodeAt(++c))<<24,++c,u=(65535&u)*s+(((u>>>16)*s&65535)<<16)&4294967295,u=u<<15|u>>>17,u=(65535&u)*a+(((u>>>16)*a&65535)<<16)&4294967295,r^=u,r=r<<13|r>>>19,i=5*(65535&r)+((5*(r>>>16)&65535)<<16)&4294967295,r=(65535&i)+27492+(((i>>>16)+58964&65535)<<16);switch(u=0,n){case 3:u^=(255&t.charCodeAt(c+2))<<16;case 2:u^=(255&t.charCodeAt(c+1))<<8;case 1:u^=255&t.charCodeAt(c),u=(65535&u)*s+(((u>>>16)*s&65535)<<16)&4294967295,u=u<<15|u>>>17,u=(65535&u)*a+(((u>>>16)*a&65535)<<16)&4294967295,r^=u}return r^=t.length,r^=r>>>16,r=2246822507*(65535&r)+((2246822507*(r>>>16)&65535)<<16)&4294967295,r^=r>>>13,r=3266489909*(65535&r)+((3266489909*(r>>>16)&65535)<<16)&4294967295,r^=r>>>16,r>>>0}t.exports=e},function(t){function e(t,n,o,r){t.getDirectory(n[0],{create:!0},function(t){n.length>1?e(t,n.slice(1),o,r):o(t)},r)}function n(t){var e=t.split("/");return e.length>1?(e.splice(e.length-1,1),e.join("/")):""}function o(t){var e=t.split("/");return e[e.length-1]}var r=[],i=0;t.exports=function(t){function s(t){return a(n(t)).then(function(){return d(t,{create:!0})})}function a(t){return new E(function(n,o){return P.then(function(r){t?(t=t.split("/").filter(function(t){return t&&t.length>0&&"."!==t[0]}),e(r.root,t,n,o)):n(r.root)},o)})}function u(t){return new E(function(e,n){d(t).then(function(t){e(t)},function(t){1===t.code?e(!1):n(t)})})}function c(t){return d(t).then(function(t){return t.toURL()})}function f(t){return h(t,"readAsDataURL")}function d(t,e){return e=e||{},new E(function(n,o){return P.then(function(r){r.root.getFile(t,e,n,o)},o)})}function l(t,e){return e=e||{},new E(function(n,o){return P.then(function(r){t&&"/"!==t?r.root.getDirectory(t,e,n,o):n(r.root)},o)})}function h(t,e){return e=e||"readAsText",d(t).then(function(t){return new E(function(n,o){t.file(function(t){var o=new FileReader;o.onloadend=function(){n(this.result)},o[e](t)},o)})})}function p(t){return h(t).then(JSON.parse)}function v(t,e,o){return a(n(t)).then(function(){return d(t,{create:!0})}).then(function(t){return new E(function(n,r){t.createWriter(function(t){t.onwriteend=n,t.onerror=r,"string"==typeof e?e=new Blob([e],{type:o||"text/plain"}):e instanceof Blob!=!0&&(e=new Blob([JSON.stringify(e,null,4)],{type:o||"application/json"})),t.write(e)},r)})})}function w(t,e){return a(n(e)).then(function(n){return d(t).then(function(t){return new E(function(r,i){t.moveTo(n,o(e),r,i)})})})}function y(t,e){return a(n(e)).then(function(n){return d(t).then(function(t){return new E(function(r,i){t.copyTo(n,o(e),r,i)})})})}function m(t,e){var n=e?d:u;return new E(function(e,o){n(t).then(function(t){t!==!1?t.remove(e,o):e()},o)})}function g(t){return l(t).then(function(t){return new E(function(e,n){t.removeRecursively(e,n)})})}function _(t,e){e=e||"";var n=e.indexOf("r")>-1,o=e.indexOf("e")>-1,r=e.indexOf("f")>-1,i=e.indexOf("d")>-1;return r&&i&&(r=!1,i=!1),new E(function(e,s){return l(t).then(function(t){var a=t.createReader();a.readEntries(function(t){var a=[E.resolve(t)];n&&t.filter(function(t){return t.isDirectory}).forEach(function(t){a.push(_(t.fullPath,"re"))}),E.all(a).then(function(t){var n=[];n=n.concat.apply(n,t),r&&(n=n.filter(function(t){return t.isFile})),i&&(n=n.filter(function(t){return t.isDirectory})),o||(n=n.map(function(t){return t.fullPath})),e(n)},s)},s)},s)})}function R(){for(;r.length>0&&i<t.concurrency;){i++;var e=r.pop(),n=e.shift(),o=e.shift(),s=e.shift(),a=e.shift(),u=e.shift(),c=e.shift(),f=e.shift(),d=e.shift();n._aborted?i--:o?(n.download.call(n,s,a,u,c,f,d),n.onprogress&&n.onprogress(new ProgressEvent)):n.upload.call(n,a,s,u,c,d,f)}}function L(t){return i--,R(),t}function S(e,n,o,s,a){"function"==typeof s&&(a=s,s={}),n=encodeURI(n),x&&(o=A(o)),s=s||{},s.retry&&s.retry.length||(s.retry=t.retry),s.retry=s.retry.concat();var u=new FileTransfer;"function"==typeof a&&(u.onprogress=a);var c=new E(function(t,a){var c=function(i){if(0===s.retry.length)a(i);else{r.unshift([u,e,n,o,t,c,s.trustAllHosts||!1,s]);var f=s.retry.shift();f>0?setTimeout(L,f):L()}};s.retry.unshift(0),i++,c()});return c.then(L,L),c.progress=function(t){return u.onprogress=t,c},c.abort=function(){return u._aborted=!0,u.abort(),c},c}function b(t,e,n,o){return S(!0,t,e,n,o)}function D(t,e,n,o){return S(!1,e,t,n,o)}var E=t.Promise||window.Promise;if(!E)throw new Error("No Promise library given in options.Promise");this.options=t=t||{},t.persistent=void 0!==t.persistent?t.persistent:!0,t.storageSize=t.storageSize||20971520,t.concurrency=t.concurrency||3,t.retry=t.retry||[];var U,x="undefined"!=typeof cordova;x?U=new E(function(t,e){document.addEventListener("deviceready",t,!1),setTimeout(function(){e(new Error("deviceready has not fired after 5 seconds."))},5100)}):(U=E.resolve(),"undefined"!=typeof webkitRequestFileSystem?(window.requestFileSystem=webkitRequestFileSystem,window.FileTransfer=function(){},FileTransfer.prototype.download=function(t,e,n,o){var r=new XMLHttpRequest;return r.open("GET",t),r.onreadystatechange=function(){4==r.readyState&&(200===r.status?v(e,r.responseText).then(n,o):o(r.status))},r.send(),r}):window.requestFileSystem=function(t,e,n,o){o(new Error("requestFileSystem not supported!"))});var P=new E(function(e,n){U.then(function(){window.requestFileSystem(t.persistent?1:0,t.storageSize,e,n),setTimeout(function(){n(new Error("Could not retrieve FileSystem after 5 seconds."))},5100)},n)});P.then(function(t){window.__fs=t},function(t){console.error("Could not get Cordova FileSystem:",t)});var T,A;return x?(A=function(e){return"/"!==e[0]&&(e="/"+e),"cdvfile://localhost/"+(t.persistent?"persistent":"temporary")+e},T=function(t){return d(t).then(function(t){return t.toInternalURL()})}):(A=function(e){return"/"!==e[0]&&(e="/"+e),"filesystem:"+location.origin+(t.persistent?"/persistent":"/temporary")+e},T=function(t){return d(t).then(function(t){return t.toURL()})}),{fs:P,file:d,filename:o,dir:l,dirname:n,create:s,read:h,readJSON:p,write:v,move:w,copy:y,remove:m,removeDir:g,list:_,ensure:a,exists:u,download:b,upload:D,toURL:c,isCordova:x,toInternalURLSync:A,toInternalURL:T,toDataURL:f,deviceready:U,options:t,Promise:E}}},function(t){/**@license MIT-promiscuous-©Ruben Verborgh*/
-!function(e,n){function o(t,e){return(typeof e)[0]==t}function r(t,s){return s=function a(u,c,f,d,l,h){function p(t){return function(e){l&&(l=0,a(o,t,e))}}if(d=a.q,u!=o)return r(function(t,e){d.push({p:this,r:t,j:e,1:u,0:c})});if(f&&o(e,f)|o(n,f))try{l=f.then}catch(v){c=0,f=v}if(o(e,l))try{l.call(f,p(1),c=p(0))}catch(v){c(v)}else for(s=function(n,s){return o(e,n=c?n:s)?r(function(t,e){i(this,t,e,f,n)}):t},h=0;h<d.length;)l=d[h++],o(e,u=l[c])?i(l.p,l.r,l.j,f,u):(c?l.r:l.j)(f)},s.q=[],t.call(t={then:function(t,e){return s(t,e)},"catch":function(t){return s(0,t)}},function(t){s(o,1,t)},function(t){s(o,0,t)}),t}function i(t,r,i,s,a){setImmediate(function(){try{s=a(s),a=s&&o(n,s)|o(e,s)&&s.then,o(e,a)?s==t?i(TypeError()):a.call(s,r,i):r(s)}catch(u){i(u)}})}function s(t){return r(function(e){e(t)})}t.exports=r,r.resolve=s,r.reject=function(t){return r(function(e,n){n(t)})},r.all=function(t){return r(function(e,n,o,r){r=[],o=t.length||e(r),t.map(function(t,i){s(t).then(function(t){r[i]=t,--o||e(r)},n)})})}}("f","o")}]);
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+/******/
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// Include the bootstrap script.
+	__webpack_require__(1);
+	var CordovaAppLoader = __webpack_require__(2);
+	var CordovaPromiseFS = __webpack_require__(3);
+	var Promise = __webpack_require__(4);
+	window.setImmediate = window.setTimeout;
+
+	// Helper variable: Chrome should use temporary storage.
+	var isCordova = typeof cordova !== 'undefined',
+	    fs,
+	    loader,
+	    script,
+	    serverUrl;
+
+	// Get SERVER_URL from script tag.
+	script = document.querySelector('script[manifest]');
+	if(script){
+	  serverUrl= script.getAttribute('server');
+	  if(!serverUrl) {
+	    throw new Error('Add a "server" attribute to the autoupdate.js script!');
+	  }
+	}
+
+	// Initialize filesystem and loader
+	fs = new CordovaPromiseFS({
+	  persistent: isCordova,
+	  Promise: Promise
+	});
+
+	loader = new CordovaAppLoader({
+	  fs: fs,
+	  localRoot: 'app',
+	  serverRoot: serverUrl,
+	  mode: 'mirror',
+	  cacheBuster: true
+	});
+
+	// Check > Download > Update
+	function check(){
+	  loader.check()
+	  .then(function(){
+	    return loader.download();
+	  })
+	  .then(function(){
+	    return loader.update();
+	  },function(err){
+	    console.error('Auto-update error:',err);
+	  });
+	}
+
+	// Couple events:
+
+	// On launch
+	check();
+
+	// Cordova: On resume
+	fs.deviceready.then(function(){
+	  document.addEventListener('resume',check);
+	});
+
+	// Chrome: On page becomes visible again
+	function handleVisibilityChange() {
+	  if (!document.webkitHidden) {
+	    check();
+	  }
+	}
+	document.addEventListener("webkitvisibilitychange", handleVisibilityChange, false);
+
+
+/***/ },
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	(function(){
+	// Retrieved and slightly modified from: https://github.com/typicode/pegasus
+	// --------------------------------------------------------------------------
+	//
+	// a   url (naming it a, beacause it will be reused to store callbacks)
+	// xhr placeholder to avoid using var, not to be used
+	window.pegasus = function pegasus(a, xhr) {
+	  xhr = new XMLHttpRequest();
+
+	  // Open url
+	  xhr.open('GET', a);
+
+	  // Reuse a to store callbacks
+	  a = [];
+
+	  // onSuccess handler
+	  // onError   handler
+	  // cb        placeholder to avoid using var, should not be used
+	  xhr.onreadystatechange = xhr.then = function(onSuccess, onError, cb) {
+
+	    // Test if onSuccess is a function or a load event
+	    if (onSuccess.call) a = [onSuccess, onError];
+
+	    // Test if request is complete
+	    if (xhr.readyState == 4) {
+
+	      // index will be:
+	      // 0 if status is between 0 and 399
+	      // 1 if status is over
+	      cb = a[0|xhr.status / 400];
+
+	      // Safari doesn't support xhr.responseType = 'json'
+	      // so the response is parsed
+	      if (cb) cb(xhr.status === 200 || xhr.status === 0?JSON.parse(xhr.responseText):xhr);
+	    }
+	  };
+
+	  // Send
+	  xhr.send();
+
+	  // Return request
+	  return xhr;
+	};
+	//------------------------------------------------------------------
+	// Step 2: After fetching manifest (localStorage or XHR), load it
+	function loadManifest(manifest,fromLocalStorage,timeout){
+	  if(!manifest.load) {
+	    console.error('Manifest has nothing to load (manifest.load is empty).',manifest);
+	    return;
+	  }
+
+	  var el,
+	      head = document.getElementsByTagName('head')[0],
+	      scripts = manifest.load.concat();
+	  
+	  // Load Next Script
+	  function loadScript(){
+	    var src = scripts.shift();
+	    if(!src) return;
+	    // Ensure the 'src' has no '/' (it's in the root already)
+	    if(src[0] === '/') src = src.substr(1);
+	    src = manifest.root + src;
+	    // Load javascript
+	    if(src.substr(-3) === ".js"){
+	      el= document.createElement('script');
+	      el.type= 'text/javascript';
+	      el.src= src;
+	      el.onload = loadScript;
+	    // Load CSS
+	    } else {
+	      el= document.createElement('link');
+	      el.rel = "stylesheet";
+	      el.href = src;
+	      el.type = "text/css";
+	      setTimeout(loadScript,0);
+	    }
+	    head.appendChild(el);
+	  }
+
+	  //---------------------------------------------------
+	  // Step 3: Ensure the 'root' end with a '/'
+	  manifest.root = manifest.root || './';
+	  if(manifest.root.length > 0 && manifest.root[manifest.root.length-1] !== '/')
+	    manifest.root += '/';
+
+	  // Step 4: Save manifest for next time
+	  if(!fromLocalStorage) 
+	    localStorage.setItem('manifest',JSON.stringify(manifest));
+
+	  // Step 5: Load Scripts
+	  // If we're loading Cordova files, make sure Cordova is ready first!
+	  if(manifest.root.substr(0,7) === 'cdvfile'){
+	    document.addEventListener("deviceready", loadScript, false);
+	  } else {
+	    loadScript();
+	  }
+	  // Save to global scope
+	  window.Manifest = manifest;
+
+	  // Safety timeout. If BOOTSTRAP_OK is not defined,
+	  // it will delete the 'localStorage' version and revert to factory settings.
+	  if(fromLocalStorage){
+	    setTimeout(function(){
+	      if(!window.BOOTSTRAP_OK){
+	        localStorage.removeItem('manifest');
+	        location.reload();
+	      }
+	    },timeout);
+	  }
+	}
+	//---------------------------------------------------------------------
+	window.Manifest = {};
+	// Step 1: Load manifest from localStorage
+	var manifest = JSON.parse(localStorage.getItem('manifest'));
+	// grab manifest.json location from <script manifest="..."></script>
+	var s = document.querySelector('script[manifest]');
+	// Not in localStorage? Fetch it!
+	if(!manifest){
+	  var url = (s? s.getAttribute('manifest'): null) || 'manifest.json';
+	  // get manifest.json, then loadManifest.
+	  pegasus(url).then(loadManifest,function(xhr){
+	    console.error('Could not download '+url+': '+xhr.status);
+	  });
+	// Manifest was in localStorage. Load it immediatly.
+	} else {
+	  loadManifest(manifest,true,s.getAttribute('timeout') || 10000);
+	}
+	})();
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var CordovaFileCache = __webpack_require__(5);
+	var Promise = null;
+
+	function createFilemap(files){
+	  var result = {};
+	  Object.keys(files).forEach(function(key){
+	    result[files[key].filename] = files[key];
+	  });
+	  return result;
+	}
+
+	function AppLoader(options){
+	  if(!options) throw new Error('CordovaAppLoader has no options!');
+	  if(!options.fs) throw new Error('CordovaAppLoader has no "fs" option (cordova-promise-fs)');
+	  if(!options.serverRoot) throw new Error('CordovaAppLoader has no "serverRoot" option.');
+	  if(!window.pegasus || !window.Manifest) throw new Error('CordovaAppLoader bootstrap.js is missing.');
+	  Promise = options.fs.Promise;
+	  
+	  // initialize variables 
+	  this.manifest = window.Manifest;
+	  this.newManifest = null;
+
+	  // normalize serverRoot and set remote manifest url
+	  options.serverRoot = options.serverRoot || '';
+	  if(!!options.serverRoot && options.serverRoot[options.serverRoot.length-1] !== '/') options.serverRoot += '/';
+	  this.newManifestUrl = options.serverRoot + (options.manifest || 'manifest.json');
+	 
+	  // initialize a file cache
+	  if(options.mode) options.mode = 'mirror';
+	  this.cache = new CordovaFileCache(options);
+
+	  // private stuff
+	  this._toBeDeleted = [];
+	  this._toBeDownloaded = [];
+	  this._updateReady = false;
+	  this._checkTimeout = options.checkTimeout || 10000;
+	}
+
+	AppLoader.prototype.check = function(newManifest){
+	  var self = this, manifest = this.manifest;
+
+	  return new Promise(function(resolve,reject){
+	    if(typeof newManifest === "string") {
+	      self.newManifestUrl = newManifest;
+	      newManifest = undefined;
+	    }
+
+	    function checkManifest(newManifest){
+	      // make sure cache is ready for the DIFF operations!
+	      self.cache.ready.then(function(){
+	        if(!newManifest.files){
+	          reject('Downloaded Manifest has no "files" attribute.');
+	          return;
+	        }
+	        
+	        var newFiles = createFilemap(newManifest.files);
+	        var oldFiles = createFilemap(manifest.files);
+
+	        // Create the diff
+	        self._toBeDownloaded = Object.keys(newFiles)
+	          .filter(function(file){
+	            return !oldFiles[file]
+	                   || oldFiles[file].version !== newFiles[file].version
+	                   || !self.cache.isCached(file);
+	          });
+	        
+	        self.cache.list().then(function(files){
+	          self._toBeDeleted = files
+	            .map(function(file){
+	              return file.substr(self.cache._localRoot.length);
+	            })
+	            .filter(function(file){
+	              return !newFiles[file];
+	            })
+	            .concat(self._toBeDownloaded);
+	            
+	          if(self._toBeDeleted.length > 0 || self._toBeDownloaded.length > 0){
+	            // Save the new Manifest
+	            self.newManifest = newManifest;
+	            self.newManifest.root = self.cache.toInternalURL('/') + (self.newManifest.root || '');
+	            resolve(true);
+	          } else {
+	            resolve(false);
+	          }
+	        },reject);
+	      },reject);
+	    }
+	    if(typeof newManifest === "object") {
+	      checkManifest(newManifest);
+	    } else {
+	      pegasus(self.newManifestUrl).then(checkManifest,reject);
+	      setTimeout(function(){reject(new Error('timeout'));},self._checkTimeout);
+	    }
+	  });
+	};
+
+	AppLoader.prototype.canDownload = function(){
+	  return !!this.newManifest && !this._updateReady;
+	};
+
+	AppLoader.prototype.canUpdate = function(){
+	  return this._updateReady;
+	};
+
+	AppLoader.prototype.download = function(onprogress){
+	  var self = this;
+	  if(!self.canDownload()) {
+	    return Promise.resolve(null);
+	  }
+	  // we will delete files, which will invalidate the current manifest...
+	  localStorage.removeItem('manifest');
+	  this.manifest.files = Manifest.files = {};
+	  return self.cache.remove(self._toBeDeleted,true)
+	    .then(function(){
+	      self.cache.add(self._toBeDownloaded);
+	      return self.cache.download(onprogress);
+	    }).then(function(){
+	      self._toBeDeleted = [];
+	      self._toBeDownloaded = [];
+	      self._updateReady = true;
+	      return self.newManifest;
+	    },function(files){
+	      // on download error, remove files...
+	      if(!!files && files.length){
+	        self.cache.remove(files);
+	      }
+	      return files;
+	    });
+	};
+
+	AppLoader.prototype.update = function(reload){
+	  if(this._updateReady) {
+	    // update manifest
+	    localStorage.setItem('manifest',JSON.stringify(this.newManifest));
+	    if(reload !== false) location.reload();
+	    return true;
+	  }
+	  return false;
+	};
+
+	AppLoader.prototype.clear = function(){
+	  localStorage.removeItem('manifest');
+	  return this.cache.clear();
+	};
+
+	AppLoader.prototype.reset = function(){
+	  return this.clear().then(function(){
+	    location.reload();
+	  },function(){
+	    location.reload();
+	  });
+	};
+
+	module.exports = AppLoader;
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Static Private functions
+	 */
+
+	/* createDir, recursively */
+	function __createDir(rootDirEntry, folders, success,error) {
+	  rootDirEntry.getDirectory(folders[0], {create: true}, function(dirEntry) {
+	    // Recursively add the new subfolder (if we still have another to create).
+	    if (folders.length > 1) {
+	      __createDir(dirEntry, folders.slice(1),success,error);
+	    } else {
+	      success(dirEntry);
+	    }
+	  }, error);
+	}
+
+	function dirname(str) {
+	  var parts = str.split('/');
+	  if(parts.length > 1) {
+	    parts.splice(parts.length-1,1);
+	    return parts.join('/');
+	  } else {
+	    return '';
+	  }
+	}
+
+	function filename(str) {
+	  var parts = str.split('/');
+	  return parts[parts.length-1];
+	}
+
+	var transferQueue = [], // queued fileTransfers
+	    inprogress = 0;     // currently active filetransfers
+
+	/**
+	 * Factory function: Create a single instance (based on single FileSystem)
+	 */
+	module.exports = function(options){
+	  /* Promise implementation */
+	  var Promise = options.Promise || window.Promise;
+	  if(!Promise) { throw new Error("No Promise library given in options.Promise"); }
+	  
+	  /* default options */
+	  this.options = options = options || {};
+	  options.persistent = options.persistent !== undefined? options.persistent: true;
+	  options.storageSize = options.storageSize || 20*1024*1024;
+	  options.concurrency = options.concurrency || 3;
+	  options.retry = options.retry || [];
+
+	  /* Cordova deviceready promise */
+	  var deviceready, isCordova = typeof cordova !== 'undefined';
+	  if(isCordova){
+	    deviceready = new Promise(function(resolve,reject){
+	      document.addEventListener("deviceready", resolve, false);
+	      setTimeout(function(){ reject(new Error('deviceready has not fired after 5 seconds.')); },5100);
+	    });
+	  } else {
+	    /* FileTransfer implementation for Chrome */
+	    deviceready = Promise.resolve();
+	    if(typeof webkitRequestFileSystem !== 'undefined'){
+	      window.requestFileSystem = webkitRequestFileSystem;
+	      window.FileTransfer = function FileTransfer(){};
+	      FileTransfer.prototype.download = function download(url,file,win,fail) {
+	        var xhr = new XMLHttpRequest();
+	        xhr.open('GET', url);
+	        xhr.onreadystatechange = function(onSuccess, onError, cb) {
+	          if (xhr.readyState == 4) {
+	            if(xhr.status === 200){
+	              write(file,xhr.responseText).then(win,fail);
+	            } else {
+	              fail(xhr.status);
+	            }
+	          }
+	        };
+	        xhr.send();
+	        return xhr;
+	      };
+	    } else {
+	      window.requestFileSystem = function(x,y,z,fail){
+	        fail(new Error('requestFileSystem not supported!'));
+	      };
+	    }
+	  }
+
+	  /* the filesystem! */
+	  var fs = new Promise(function(resolve,reject){
+	    deviceready.then(function(){
+	      window.requestFileSystem(options.persistent? 1: 0, options.storageSize, resolve, reject);
+	      setTimeout(function(){ reject(new Error('Could not retrieve FileSystem after 5 seconds.')); },5100);
+	    },reject);
+	  });
+
+	  /* debug */
+	  fs.then(function(fs){
+	    window.__fs = fs;
+	  },function(err){
+	    console.error('Could not get Cordova FileSystem:',err);
+	  });
+
+	  function create(path){
+	    return ensure(dirname(path)).then(function(){
+	      return file(path,{create:true});
+	    });
+	  }
+
+	  /* ensure directory exists */
+	  function ensure(folders) {
+	    return new Promise(function(resolve,reject){
+	      return fs.then(function(fs){
+	          if(!folders) {
+	            resolve(fs.root);
+	          } else {
+	            folders = folders.split('/').filter(function(folder) {
+	              return folder && folder.length > 0 && folder[0] !== '.';
+	            });
+	            __createDir(fs.root,folders,resolve,reject);
+	          }
+	        },reject);
+	    });
+	  }
+
+	  /* does file exist? If so, resolve with fileEntry, if not, resolve with false. */
+	  function exists(path){
+	    return new Promise(function(resolve,reject){
+	      file(path).then(
+	        function(fileEntry){
+	          resolve(fileEntry);
+	        },
+	        function(err){
+	          if(err.code === 1) {
+	            resolve(false);
+	          } else {
+	            reject(err);
+	          }
+	        }
+	      );
+	    });
+	  }
+
+	  /* convert path to URL to be used in JS/CSS/HTML */
+	  function toURL(path) {
+	    return file(path).then(function(fileEntry) {
+	      return fileEntry.toURL();
+	    });
+	  }
+
+	  /* convert path to URL to be used in JS/CSS/HTML */
+	  var toInternalURL,toInternalURLSync;
+	  if(isCordova) {
+	    /* synchronous helper to get internal URL. */
+	    toInternalURLSync = function(path){
+	      if(path[0] !== '/') path = '/' + path;
+	      return 'cdvfile://localhost/'+(options.persistent? 'persistent':'temporary') + path;
+	    };
+
+	    toInternalURL = function(path) {
+	      return file(path).then(function(fileEntry) {
+	        return fileEntry.toInternalURL();
+	      });
+	    };
+	  } else {
+	    /* synchronous helper to get internal URL. */
+	    toInternalURLSync = function(path){
+	      if(path[0] !== '/') path = '/' + path;
+	      return 'filesystem:'+location.origin+(options.persistent? '/persistent':'/temporary') + path;
+	    };
+
+	    toInternalURL = function(path) {
+	      return file(path).then(function(fileEntry) {
+	        return fileEntry.toURL();
+	      });
+	    };
+	  } 
+
+	  /* convert path to base64 date URI */
+	  function toDataURL(path) {
+	    return read(path,'readAsDataURL');
+	  }
+
+	  /* get file file */
+	  function file(path,options){
+	    options = options || {};
+	    return new Promise(function(resolve,reject){
+	      return fs.then(function(fs){
+	        fs.root.getFile(path,options,resolve,reject);
+	      },reject);
+	    });
+	  }
+
+	  /* get directory entry */
+	  function dir(path,options){
+	    options = options || {};
+	    return new Promise(function(resolve,reject){
+	      return fs.then(function(fs){
+	        if(!path || path === '/') {
+	          resolve(fs.root);
+	        } else {
+	          fs.root.getDirectory(path,options,resolve,reject);
+	        }
+	      },reject);
+	    });
+	  }
+
+	  /* return contents of a file */
+	  function read(path,method) {
+	    method = method || 'readAsText';
+	    return file(path).then(function(fileEntry) {
+	      return new Promise(function(resolve,reject){
+	        fileEntry.file(function(file){
+	          var reader = new FileReader();
+	          reader.onloadend = function(){
+	            resolve(this.result);
+	          };
+	          reader[method](file);
+	        },reject);
+	      });
+	    });
+	  }
+
+	  function readJSON(path){
+	    return read(path).then(JSON.parse);
+	  }
+
+	  /* write contents to a file */
+	  function write(path,blob,mimeType) {
+	    return ensure(dirname(path))
+	      .then(function() { return file(path,{create:true}); })
+	      .then(function(fileEntry) {
+	        return new Promise(function(resolve,reject){
+	          fileEntry.createWriter(function(writer){
+	            writer.onwriteend = resolve;
+	            writer.onerror = reject;
+	            if(typeof blob === 'string') {
+	              blob = new Blob([blob],{type: mimeType || 'text/plain'});
+	            } else if(blob instanceof Blob !== true){
+	              blob = new Blob([JSON.stringify(blob,null,4)],{type: mimeType || 'application/json'});
+	            }
+	            writer.write(blob);
+	          },reject);
+	        });
+	      });
+	    }
+
+	  /* move a file */
+	  function move(src,dest) {
+	    return ensure(dirname(dest))
+	      .then(function(dir) {
+	        return file(src).then(function(fileEntry){
+	          return new Promise(function(resolve,reject){
+	            fileEntry.moveTo(dir,filename(dest),resolve,reject);
+	          });
+	        });
+	      });
+	  }
+
+	  /* copy a file */
+	  function copy(src,dest) {
+	    return ensure(dirname(dest))
+	      .then(function(dir) {
+	        return file(src).then(function(fileEntry){
+	          return new Promise(function(resolve,reject){
+	            fileEntry.copyTo(dir,filename(dest),resolve,reject);
+	          });
+	        });
+	      });
+	  }
+
+	  /* delete a file */
+	  function remove(path,mustExist) {
+	    var method = mustExist? file:exists;
+	    return new Promise(function(resolve,reject){
+	        method(path).then(function(fileEntry){
+	        if(fileEntry !== false) {
+	          fileEntry.remove(resolve,reject);
+	        } else {
+	          resolve();
+	        }
+	      },reject);
+	    });
+	  }
+
+	  /* delete a directory */
+	  function removeDir(path) {
+	    return dir(path).then(function(dirEntry){
+	      return new Promise(function(resolve,reject) {
+	        dirEntry.removeRecursively(resolve,reject);
+	      });
+	    });
+	  }
+
+	  /* list contents of a directory */
+	  function list(path,mode) {
+	    mode = mode || '';
+	    var recursive = mode.indexOf('r') > -1;
+	    var getAsEntries = mode.indexOf('e') > -1;
+	    var onlyFiles = mode.indexOf('f') > -1;
+	    var onlyDirs = mode.indexOf('d') > -1;
+	    if(onlyFiles && onlyDirs) {
+	      onlyFiles = false;
+	      onlyDirs = false;
+	    }
+
+	    return new Promise(function(resolve,reject){
+	      return dir(path).then(function(dirEntry){
+	        var dirReader = dirEntry.createReader();
+	        dirReader.readEntries(function(entries) {
+	          var promises = [Promise.resolve(entries)];
+	          if(recursive) {
+	            entries
+	              .filter(function(entry){return entry.isDirectory; })
+	              .forEach(function(entry){
+	                promises.push(list(entry.fullPath,'re'));
+	              });
+	          }
+	          Promise.all(promises).then(function(values){
+	              var entries = [];
+	              entries = entries.concat.apply(entries,values);
+	              if(onlyFiles) entries = entries.filter(function(entry) { return entry.isFile; });
+	              if(onlyDirs) entries = entries.filter(function(entry) { return entry.isDirectory; });
+	              if(!getAsEntries) entries = entries.map(function(entry) { return entry.fullPath; });
+	              resolve(entries);
+	            },reject);
+	        }, reject);
+	      },reject);
+	    });
+	  }
+
+	  // Whenever we want to start a transfer, we call popTransferQueue
+	  function popTransferQueue(){
+	    // while we are not at max concurrency
+	    while(transferQueue.length > 0 && inprogress < options.concurrency){
+	      // increment activity counter
+	      inprogress++;
+	      
+	      // fetch filetranfer, method-type (isDownload) and arguments
+	      var args = transferQueue.pop();
+	      var ft = args.shift();
+	      var isDownload = args.shift();
+	      var serverUrl = args.shift();
+	      var localPath = args.shift();
+	      var win = args.shift();
+	      var fail = args.shift();
+	      var trustAllHosts = args.shift();
+	      var transferOptions = args.shift();
+	      
+	      if(ft._aborted) {
+	        inprogress--;
+	      } else if(isDownload){
+	        ft.download.call(ft,serverUrl,localPath,win,fail,trustAllHosts,transferOptions);
+	        if(ft.onprogress) ft.onprogress(new ProgressEvent());
+	      } else {
+	        ft.upload.call(ft,localPath,serverUrl,win,fail,transferOptions,trustAllHosts);
+	      }
+	    }
+	    // if we are at max concurrency, popTransferQueue() will be called whenever
+	    // the transfer is ready and there is space avaialable.
+	  }
+
+	  // Promise callback to check if there are any more queued transfers 
+	  function nextTransfer(result){
+	    inprogress--; // decrement counter to free up one space to start transfers again!
+	    popTransferQueue(); // check if there are any queued transfers
+	    return result;
+	  }
+
+	  function filetransfer(isDownload,serverUrl,localPath,transferOptions,onprogress){
+	    if(typeof transferOptions === 'function') {
+	      onprogress = transferOptions;
+	      transferOptions = {};
+	    }
+	    serverUrl = encodeURI(serverUrl);
+	    if(isCordova) localPath = toInternalURLSync(localPath);
+
+	    transferOptions = transferOptions || {};
+	    if(!transferOptions.retry || !transferOptions.retry.length) {
+	      transferOptions.retry = options.retry;
+	    }
+	    transferOptions.retry = transferOptions.retry.concat();
+	    
+	    var ft = new FileTransfer();
+	    if(typeof onprogress === 'function') ft.onprogress = onprogress;
+	    var promise = new Promise(function(resolve,reject){
+	      var attempt = function(err){
+	        if(transferOptions.retry.length === 0) {
+	          reject(err);
+	        } else {
+	          transferQueue.unshift([ft,isDownload,serverUrl,localPath,resolve,attempt,transferOptions.trustAllHosts || false,transferOptions]);
+	          var timeout = transferOptions.retry.shift();
+	          if(timeout > 0) {
+	            setTimeout(nextTransfer,timeout);
+	          } else {
+	            nextTransfer();
+	          }
+	        }
+	      };
+	      transferOptions.retry.unshift(0);
+	      inprogress++;
+	      attempt();
+	    });
+	    promise.then(nextTransfer,nextTransfer);
+	    promise.progress = function(onprogress){
+	      ft.onprogress = onprogress;
+	      return promise;
+	    };
+	    promise.abort = function(){
+	      ft._aborted = true;
+	      ft.abort();
+	      return promise;
+	    };
+	    return promise;
+	  }
+
+	  function download(url,dest,options,onprogress){
+	    return filetransfer(true,url,dest,options,onprogress);
+	  }
+
+	  function upload(source,dest,options,onprogress){
+	    return filetransfer(false,dest,source,options,onprogress);
+	  }
+
+	  return {
+	    fs: fs,
+	    file: file,
+	    filename: filename,
+	    dir: dir,
+	    dirname: dirname,
+	    create:create,
+	    read: read,
+	    readJSON: readJSON,
+	    write: write,
+	    move: move,
+	    copy: copy,
+	    remove: remove,
+	    removeDir: removeDir,
+	    list: list,
+	    ensure: ensure,
+	    exists: exists,
+	    download: download,
+	    upload: upload,
+	    toURL:toURL,
+	    isCordova:isCordova,
+	    toInternalURLSync: toInternalURLSync,
+	    toInternalURL:toInternalURL,
+	    toDataURL:toDataURL,
+	    deviceready: deviceready,
+	    options: options,
+	    Promise: Promise
+	  };
+	};
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**@license MIT-promiscuous-©Ruben Verborgh*/
+	(function (func, obj) {
+	  // Type checking utility function
+	  function is(type, item) { return (typeof item)[0] == type; }
+
+	  // Creates a promise, calling callback(resolve, reject), ignoring other parameters.
+	  function Promise(callback, handler) {
+	    // The `handler` variable points to the function that will
+	    // 1) handle a .then(resolved, rejected) call
+	    // 2) handle a resolve or reject call (if the first argument === `is`)
+	    // Before 2), `handler` holds a queue of callbacks.
+	    // After 2), `handler` is a finalized .then handler.
+	    handler = function pendingHandler(resolved, rejected, value, queue, then, i) {
+	      queue = pendingHandler.q;
+
+	      // Case 1) handle a .then(resolved, rejected) call
+	      if (resolved != is) {
+	        return Promise(function (resolve, reject) {
+	          queue.push({ p: this, r: resolve, j: reject, 1: resolved, 0: rejected });
+	        });
+	      }
+
+	      // Case 2) handle a resolve or reject call
+	      // (`resolved` === `is` acts as a sentinel)
+	      // The actual function signature is
+	      // .re[ject|solve](<is>, success, value)
+
+	      // Check if the value is a promise and try to obtain its `then` method
+	      if (value && (is(func, value) | is(obj, value))) {
+	        try { then = value.then; }
+	        catch (reason) { rejected = 0; value = reason; }
+	      }
+	      // If the value is a promise, take over its state
+	      if (is(func, then)) {
+	        function valueHandler(resolved) {
+	          return function (value) { then && (then = 0, pendingHandler(is, resolved, value)); };
+	        }
+	        try { then.call(value, valueHandler(1), rejected = valueHandler(0)); }
+	        catch (reason) { rejected(reason); }
+	      }
+	      // The value is not a promise; handle resolve/reject
+	      else {
+	        // Replace this handler with a finalized resolved/rejected handler
+	        handler = function (Resolved, Rejected) {
+	          // If the Resolved or Rejected parameter is not a function,
+	          // return the original promise (now stored in the `callback` variable)
+	          if (!is(func, (Resolved = rejected ? Resolved : Rejected)))
+	            return callback;
+	          // Otherwise, return a finalized promise, transforming the value with the function
+	          return Promise(function (resolve, reject) { finalize(this, resolve, reject, value, Resolved); });
+	        };
+	        // Resolve/reject pending callbacks
+	        i = 0;
+	        while (i < queue.length) {
+	          then = queue[i++];
+	          // If no callback, just resolve/reject the promise
+	          if (!is(func, resolved = then[rejected]))
+	            (rejected ? then.r : then.j)(value);
+	          // Otherwise, resolve/reject the promise with the result of the callback
+	          else
+	            finalize(then.p, then.r, then.j, value, resolved);
+	        }
+	      }
+	    };
+	    // The queue of pending callbacks; garbage-collected when handler is resolved/rejected
+	    handler.q = [];
+
+	    // Create and return the promise (reusing the callback variable)
+	    callback.call(callback = { then:  function (resolved, rejected) { return handler(resolved, rejected); },
+	                               catch: function (rejected)           { return handler(0,        rejected); } },
+	                  function (value)  { handler(is, 1,  value); },
+	                  function (reason) { handler(is, 0, reason); });
+	    return callback;
+	  }
+
+	  // Finalizes the promise by resolving/rejecting it with the transformed value
+	  function finalize(promise, resolve, reject, value, transform) {
+	    setImmediate(function () {
+	      try {
+	        // Transform the value through and check whether it's a promise
+	        value = transform(value);
+	        transform = value && (is(obj, value) | is(func, value)) && value.then;
+	        // Return the result if it's not a promise
+	        if (!is(func, transform))
+	          resolve(value);
+	        // If it's a promise, make sure it's not circular
+	        else if (value == promise)
+	          reject(TypeError());
+	        // Take over the promise's state
+	        else
+	          transform.call(value, resolve, reject);
+	      }
+	      catch (error) { reject(error); }
+	    });
+	  }
+
+	  // Export the main module
+	  module.exports = Promise;
+
+	  // Creates a resolved promise
+	  Promise.resolve = ResolvedPromise;
+	  function ResolvedPromise(value) { return Promise(function (resolve) { resolve(value); }); }
+
+	  // Creates a rejected promise
+	  Promise.reject = function (reason) { return Promise(function (resolve, reject) { reject(reason); }); };
+
+	  // Transforms an array of promises into a promise for an array
+	  Promise.all = function (promises) {
+	    return Promise(function (resolve, reject, count, values) {
+	      // Array of collected values
+	      values = [];
+	      // Resolve immediately if there are no promises
+	      count = promises.length || resolve(values);
+	      // Transform all elements (`map` is shorter than `forEach`)
+	      promises.map(function (promise, index) {
+	        ResolvedPromise(promise).then(
+	          // Store the value and resolve if it was the last
+	          function (value) {
+	            values[index] = value;
+	            --count || resolve(values);
+	          },
+	          // Reject if one element fails
+	          reject);
+	      });
+	    });
+	  };
+	})('f', 'o');
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var hash = __webpack_require__(6);
+	var Promise = null;
+	var isCordova = typeof cordova !== 'undefined';
+
+	if(!isCordova) {
+	  window.ProgressEvent = function ProgressEvent(){}
+	}
+
+	/* Cordova File Cache x */
+	function FileCache(options){
+	  // cordova-promise-fs
+	  this._fs = options.fs;
+	  if(!this._fs) {
+	    throw new Error('Missing required option "fs". Add an instance of cordova-promise-fs.');
+	  }
+	  // Use Promises from fs.
+	  Promise = this._fs.Promise;
+
+	  // 'mirror' mirrors files structure from "serverRoot" to "localRoot"
+	  // 'hash' creates a 1-deep filestructure, where the filenames are hashed server urls (with extension)
+	  this._mirrorMode = options.mode !== 'hash';
+	  this._retry = options.retry || [500,1500,8000];
+	  this._cacheBuster = !!options.cacheBuster;
+
+	  // normalize path
+	  this._localRoot = options.localRoot || 'data';
+	  if(this._localRoot[this._localRoot.length -1] !== '/') this._localRoot += '/';
+	  if(this._localRoot[0] !== '/') this._localRoot = '/' + this._localRoot;
+
+	  this._serverRoot = options.serverRoot || '';
+	  if(!!this._serverRoot && this._serverRoot[this._serverRoot.length-1] !== '/') this._serverRoot += '/';
+	  if(this._serverRoot === './') this._serverRoot = '';
+
+	  // set internal variables
+	  this._downloading = [];    // download promises
+	  this._added = [];          // added files
+	  this._cached = {};         // cached files
+
+	  // list existing cache contents
+	  this.ready = this.list();
+	}
+
+	/**
+	 * Helper to cache all 'internalURL' and 'URL' for quick synchronous access
+	 * to the cached files.
+	 */
+	FileCache.prototype.list = function list(){
+	  var self = this;
+	  return new Promise(function(resolve,reject){
+	    self._fs.list(self._localRoot,'rfe').then(function(entries){
+	      self._cached = {};
+	      entries = entries.map(function(entry){
+	        self._cached[entry.fullPath] = {
+	          toInternalURL: isCordova? entry.toInternalURL(): entry.toURL(),
+	          toURL: entry.toURL(),
+	        };
+	        return entry.fullPath;
+	      });
+	      resolve(entries);
+	    },function(){
+	      resolve([]);
+	    });
+	  });
+	};
+
+	FileCache.prototype.add = function add(urls){
+	  if(!urls) urls = [];
+	  if(typeof urls === 'string') urls = [urls];
+	  var self = this;
+	  urls.forEach(function(url){
+	    url = self.toServerURL(url);
+	    if(self._added.indexOf(url) === -1) {
+	      self._added.push(url);
+	    }
+	  });
+	  return self.isDirty();
+	};
+
+	FileCache.prototype.remove = function remove(urls,returnPromises){
+	  if(!urls) urls = [];
+	  var promises = [];
+	  if(typeof urls === 'string') urls = [urls];
+	  var self = this;
+	  urls.forEach(function(url){
+	    var index = self._added.indexOf(self.toServerURL(url));
+	    if(index >= 0) self._added.splice(index,1);
+	    var path = self.toPath(url);
+	    promises.push(self._fs.remove(path));
+	    delete self._cached[path];
+	  });
+	  return returnPromises? Promise.all(promises): self.isDirty();
+	};
+
+	FileCache.prototype.getDownloadQueue = function(){
+	  var self = this;
+	  var queue = self._added.filter(function(url){
+	    return !self.isCached(url);
+	  });
+	  return queue;
+	};
+
+	FileCache.prototype.getAdded = function() {
+	  return this._added;
+	};
+
+	FileCache.prototype.isDirty = function isDirty(){
+	  return this.getDownloadQueue().length > 0;
+	};
+
+	FileCache.prototype.download = function download(onprogress){
+	  var fs = this._fs;
+	  var self = this;
+	  self.abort();
+
+	  return new Promise(function(resolve,reject){
+	    // make sure cache directory exists and that
+	    // we have retrieved the latest cache contents
+	    // to avoid downloading files we already have!
+	    fs.ensure(self._localRoot).then(function(){
+	      return self.list();
+	    }).then(function(){
+	      // no dowloads needed, resolve
+	      if(!self.isDirty()) {
+	        resolve(self);
+	        return;
+	      }
+
+	      // keep track of number of downloads!
+	      var queue = self.getDownloadQueue();
+	      var started = [];
+	      var index = self._downloading.length;
+	      var done = self._downloading.length;
+	      var total = self._downloading.length + queue.length;
+
+	      // download every file in the queue (which is the diff from _added with _cached)
+	      queue.forEach(function(url){
+	        var path = self.toPath(url);
+	        // augment progress event with index/total stats
+	        var onSingleDownloadProgress;
+	        if(typeof onprogress === 'function') {
+	          onSingleDownloadProgress = function(ev){
+	            ev.queueIndex = index;
+	            ev.queueSize = total;
+	            ev.url = url;
+	            ev.path = path;
+	            ev.percentage = index / total;
+	            if(ev.loaded > 0 && ev.total > 0 && index !== total){
+	               ev.percentage += (ev.loaded / ev.total) / total;
+	            }
+	            if(started.indexOf(url) < 0) {
+	              started.push(url);
+	              index++;
+	            }
+	            onprogress(ev);
+	          };
+	        }
+
+	        // callback
+	        var onDone = function(){
+	          done++;
+	          // when we're done
+	          if(done === total) {
+	            // reset downloads
+	            self._downloading = [];
+	            // check if we got everything
+	            self.list().then(function(){
+	              // final progress event!
+	              if(onSingleDownloadProgress) onSingleDownloadProgress(new ProgressEvent());
+	              // Yes, we're not dirty anymore!
+	              if(!self.isDirty()) {
+	                resolve(self);
+	              // Aye, some files got left behind!
+	              } else {
+	                reject(self.getDownloadQueue());
+	              }
+	            },reject);
+	          }
+	        };
+	        var downloadUrl = url;
+	        if(self._cacheBuster) downloadUrl += "?"+Date.now();
+	        var download = fs.download(url,path,{retry:self._retry},onSingleDownloadProgress);
+	        download.then(onDone,onDone);
+	        self._downloading.push(download);
+	      });
+	    },reject);
+	  });
+	};
+
+	FileCache.prototype.abort = function abort(){
+	  this._downloading.forEach(function(download){
+	    download.abort();
+	  });
+	  this._downloading = [];
+	};
+
+	FileCache.prototype.isCached = function isCached(url){
+	  url = this.toPath(url);
+	  return !!this._cached[url];
+	};
+
+	FileCache.prototype.clear = function clear(){
+	  this._cached = {};
+	  return this._fs.removeDir(this._localRoot);
+	};
+
+	/**
+	 * Helpers to output to various formats
+	 */
+	FileCache.prototype.toInternalURL = function toInternalURL(url){
+	  path = this.toPath(url);
+	  if(this._cached[path]) return this._cached[path].toInternalURL;
+	  return this._fs.toInternalURLSync(path);
+	};
+
+	FileCache.prototype.get = function get(url){
+	  path = this.toPath(url);
+	  if(this._cached[path]) return this._cached[path].toInternalURL;
+	  return this.toServerURL(url);
+	};
+
+	FileCache.prototype.toDataURL = function toDataURL(url){
+	  return this._fs.toDataURL(this.toPath(url));
+	};
+
+	FileCache.prototype.toURL = function toURL(url){
+	  path = this.toPath(url);
+	  return this._cached[path]? this._cached[path].toURL: url;
+	};
+
+	FileCache.prototype.toServerURL = function toServerURL(path){
+	  if(path[0] === '/') path = path.substr(1);
+	  return path.indexOf('://') < 0? this._serverRoot + path: path;
+	};
+
+	/**
+	 * Helper to transform remote URL to a local path (for cordova-promise-fs)
+	 */
+	FileCache.prototype.toPath = function toPath(url){
+	  if(this._mirrorMode) {
+	    url = url || '';
+	    len = this._serverRoot.length;
+	    if(url.substr(0,len) !== this._serverRoot) {
+	      if(url[0] === '/') url = url.substr(1);
+	      return this._localRoot + url;
+	    } else {
+	      return this._localRoot + url.substr(len);
+	    }
+	  } else {
+	    return this._localRoot + hash(url) + url.substr(url.lastIndexOf('.'));
+	  }
+	};
+
+	module.exports = FileCache;
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * JS Implementation of MurmurHash3 (r136) (as of May 20, 2011)
+	 * 
+	 * @author <a href="mailto:gary.court@gmail.com">Gary Court</a>
+	 * @see http://github.com/garycourt/murmurhash-js
+	 * @author <a href="mailto:aappleby@gmail.com">Austin Appleby</a>
+	 * @see http://sites.google.com/site/murmurhash/
+	 * 
+	 * @param {string} key ASCII only
+	 * @param {number} seed Positive integer only
+	 * @return {number} 32-bit positive integer hash 
+	 */
+
+	function murmurhash3_32_gc(key, seed) {
+	  var remainder, bytes, h1, h1b, c1, c1b, c2, c2b, k1, i;
+	  
+	  remainder = key.length & 3; // key.length % 4
+	  bytes = key.length - remainder;
+	  h1 = seed;
+	  c1 = 0xcc9e2d51;
+	  c2 = 0x1b873593;
+	  i = 0;
+	  
+	  while (i < bytes) {
+	      k1 = 
+	        ((key.charCodeAt(i) & 0xff)) |
+	        ((key.charCodeAt(++i) & 0xff) << 8) |
+	        ((key.charCodeAt(++i) & 0xff) << 16) |
+	        ((key.charCodeAt(++i) & 0xff) << 24);
+	    ++i;
+	    
+	    k1 = ((((k1 & 0xffff) * c1) + ((((k1 >>> 16) * c1) & 0xffff) << 16))) & 0xffffffff;
+	    k1 = (k1 << 15) | (k1 >>> 17);
+	    k1 = ((((k1 & 0xffff) * c2) + ((((k1 >>> 16) * c2) & 0xffff) << 16))) & 0xffffffff;
+
+	    h1 ^= k1;
+	        h1 = (h1 << 13) | (h1 >>> 19);
+	    h1b = ((((h1 & 0xffff) * 5) + ((((h1 >>> 16) * 5) & 0xffff) << 16))) & 0xffffffff;
+	    h1 = (((h1b & 0xffff) + 0x6b64) + ((((h1b >>> 16) + 0xe654) & 0xffff) << 16));
+	  }
+	  
+	  k1 = 0;
+	  
+	  switch (remainder) {
+	    case 3: k1 ^= (key.charCodeAt(i + 2) & 0xff) << 16;
+	    case 2: k1 ^= (key.charCodeAt(i + 1) & 0xff) << 8;
+	    case 1: k1 ^= (key.charCodeAt(i) & 0xff);
+	    
+	    k1 = (((k1 & 0xffff) * c1) + ((((k1 >>> 16) * c1) & 0xffff) << 16)) & 0xffffffff;
+	    k1 = (k1 << 15) | (k1 >>> 17);
+	    k1 = (((k1 & 0xffff) * c2) + ((((k1 >>> 16) * c2) & 0xffff) << 16)) & 0xffffffff;
+	    h1 ^= k1;
+	  }
+	  
+	  h1 ^= key.length;
+
+	  h1 ^= h1 >>> 16;
+	  h1 = (((h1 & 0xffff) * 0x85ebca6b) + ((((h1 >>> 16) * 0x85ebca6b) & 0xffff) << 16)) & 0xffffffff;
+	  h1 ^= h1 >>> 13;
+	  h1 = ((((h1 & 0xffff) * 0xc2b2ae35) + ((((h1 >>> 16) * 0xc2b2ae35) & 0xffff) << 16))) & 0xffffffff;
+	  h1 ^= h1 >>> 16;
+
+	  return h1 >>> 0;
+	}
+
+	module.exports = murmurhash3_32_gc;
+
+/***/ }
+/******/ ])

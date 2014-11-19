@@ -73,6 +73,7 @@ var CordovaAppLoader =
 	  this.newManifestUrl = options.serverRoot + (options.manifest || 'manifest.json');
 	 
 	  // initialize a file cache
+	  if(options.mode) options.mode = 'mirror';
 	  this.cache = new CordovaFileCache(options);
 
 	  // private stuff
@@ -414,7 +415,7 @@ var CordovaAppLoader =
 	FileCache.prototype.toInternalURL = function toInternalURL(url){
 	  path = this.toPath(url);
 	  if(this._cached[path]) return this._cached[path].toInternalURL;
-	  return this._fs.toInternalURLSync(url);
+	  return this._fs.toInternalURLSync(path);
 	};
 
 	FileCache.prototype.get = function get(url){
