@@ -98,36 +98,36 @@ See [an example](https://github.com/markmarijnissen/cordova-app-loader/blob/mast
 
 ### Quickstart
 
-If you don't need full control, you can use a drop-in solution: [autoupdate.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.js)
+If you don't need full control, you can use a ready-made solution: [autoupdate.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.js)
 
-[autoupdate.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.js) includes all four files ([bootstrap.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/bootstrap.js), [a Promise library](https://raw.githubusercontent.com/RubenVerborgh/promiscuous/master/promiscuous.js), [CordovaPromiseFS.js](https://github.com/markmarijnissen/cordova-app-loader/blob/master/www/lib/CordovaPromiseFS.js) and [CordovaAppLoader.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/lib/CordovaAppLoader.js)), initializes everything, and automatically updates your app [when you open or resume it](https://github.com/markmarijnissen/cordova-app-loader/blob/master/autoupdate.js#L58). 
+[autoupdate.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.js) includes everything except the **bootloader.js** ([a Promise library](https://raw.githubusercontent.com/RubenVerborgh/promiscuous/master/promiscuous.js), [CordovaPromiseFS.js](https://github.com/markmarijnissen/cordova-app-loader/blob/master/www/lib/CordovaPromiseFS.js) and [CordovaAppLoader.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/lib/CordovaAppLoader.js)).
+
+Autoupdate initializes everything as described above, and automatically updates your app [when you open or resume it](https://github.com/markmarijnissen/cordova-app-loader/blob/master/autoupdate.js#L58). 
 
 #### Steps
 
-1. Download [index.html](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.html) to your `www` directory.
-2. Download [autoupdate.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.js) to your `www` directory.
-3. Write a **manifest.json** (see below)
-4. Make sure you set the correct options in `index.html`:
+1. Download [index.html](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.html), [bootstrap.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/bootstrap.js) and [autoupdate.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.js) to your `www` directory.
+2. Write a **manifest.json** (see below). Include `autoupdate.js` in it.
+3. Make sure you set the correct options in `index.html`:
     ```html
     <script 
         type="text/javascript" 
         server="http://data.madebymark.nl/cordova-app-loader/" 
         manifest="manifest.json" 
-        src="autoupdate.js"></script>
+        src="bootstrap.js"></script>
     ```
 
-5. Write `window.BOOTSTRAP_OK = true` in your code when your app succesfully launches.
-6. Launch your app.
-7. Upload a new **manifest.json** (+ files) to your server.
-8. Reopen your app to download and apply the update.
+4. Write `window.BOOTSTRAP_OK = true` in your code when your app succesfully launches.
+5. Launch your app. 
+6. Upload a new **manifest.json** (+ files) to your server.
+7. Reopen your app to download and apply the update.
 
 This implementation is **not** recommended because:
 
 * Downloading files in the background can slow down performance (sluggish UI).
 * The update (reload) can interrupt an important user action.
-* **autoupdate.js** cannot be updated (and it includes CordovaAppLauncher!)
 
-**TODO:** Don't include **bootstrap.js** in **autoupdate.js**. This way, you can also update the **autoupdate.js** file.
+**Note:** You cannot update `bootstrap.js` - therefore `autoupdate.js` is a seperate file. (So you can update `autoupdate` itself).
 
 ## Manifest.json
 
@@ -360,7 +360,7 @@ Let me know if you find bugs. Report an issue!
 
 ## TODO
 
-* Don't include **bootstrap.js** in **autoupdate.js** (and update example)
+* Update **autoupdate.js** example
 * Include CordovaPromiseFS in the CordovaAppLoader build. Create a default instance if no CordovaPromiseFS instance is passed as option.
 * Write automatic tests? (Is this possible?)
 * Document and double-check all the urls and paths. (Especially: Do `serverUrl` and `Manifest.root` work together as expected?)

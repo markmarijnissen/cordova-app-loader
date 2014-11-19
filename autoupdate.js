@@ -1,5 +1,3 @@
-// Include the bootstrap script.
-require('./bootstrap.js');
 var CordovaAppLoader = require('./index');
 var CordovaPromiseFS = require('cordova-promise-fs');
 var Promise = require('promiscuous');
@@ -13,12 +11,12 @@ var isCordova = typeof cordova !== 'undefined',
     serverUrl;
 
 // Get SERVER_URL from script tag.
-script = document.querySelector('script[manifest]');
+script = document.querySelector('script[server]');
 if(script){
   serverUrl= script.getAttribute('server');
-  if(!serverUrl) {
-    throw new Error('Add a "server" attribute to the autoupdate.js script!');
-  }
+}
+if(!serverUrl) {
+  throw new Error('Add a "server" attribute to the autoupdate.js script!');
 }
 
 // Initialize filesystem and loader
