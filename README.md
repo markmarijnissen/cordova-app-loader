@@ -15,7 +15,6 @@ A little later...
    2. `download()` files
    3. `update()` your app!
 
-Based on [cordova-promise-fs](https://github.com/markmarijnissen/cordova-promise-fs) and [cordova-file-cache](https://github.com/markmarijnissen/cordova-file-cache).
 
 ## Demo Time!
 
@@ -36,15 +35,6 @@ cordova run ios
 
 ## Installation
 
-### Get javascript:
-
-You can download the files (see "Quickstart" or "Usage") or use NPM or bower:
-
-```bash
-  bower install cordova-app-loader cordova-promise-fs bluebird
-  npm install cordova-app-loader cordova-promise-fs bluebird
-```
-
 ### Setup Cordova:
 
 ```bash
@@ -55,45 +45,91 @@ You can download the files (see "Quickstart" or "Usage") or use NPM or bower:
 
 **IMPORTANT:** For iOS, use Cordova 3.7.0 or higher (due to a [bug](https://github.com/AppGyver/steroids/issues/534) that affects requestFileSystem).
 
-## Quickstart: A simple example
+### Get javascript:
 
-Download [index.html](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.html) and [autoupdate.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.js).
+You need:
 
-1. Write a **manifest.json** (see "step 1" below)
-2. Copy **index.html** and **autoupdate.js** to your `www` folder.
-3. Launch your app.
-4. Upload a new **manifest.json** (+ files) to your server.
-5. Reopen your app to download and apply the update.
+ * bootstrap.js ([github](https://github.com/markmarijnissen/cordova-app-loader/), [file](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/bootstrap.js)): reads the manifest.json to start your app.
+ * cordova-app-loader ([github](https://github.com/markmarijnissen/cordova-app-loader/), [file]((https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/lib/CordovaAppLoader.js))): to check,download and update a **manifest.json**
+ * cordova-promise-fs ([github](https://github.com/markmarijnissen/cordova-promise-fs), [file](https://github.com/markmarijnissen/cordova-app-loader/blob/master/www/lib/CordovaPromiseFS.js)): to deal with the FileSystem
+ * Promise libary such as bluebird ([github](https://github.com/petkaantonov/bluebird), [file](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/lib/bluebird.js)) or promiscuous ([github](https://github.com/RubenVerborgh/promiscuous),[file](https://raw.githubusercontent.com/RubenVerborgh/promiscuous/master/promiscuous.js))
 
-Make sure you set the correct options in `index.html`:
-```html
-<script 
-    type="text/javascript" 
-    server="http://data.madebymark.nl/cordova-app-loader/" 
-    manifest="manifest.json" 
-    src="autoupdate.js"></script>
+ CordovaAppLoader uses [cordova-file-cache](https://github.com/markmarijnissen/cordova-file-cache) to download and cache the files.
+
+```bash
+  bower install cordova-app-loader cordova-promise-fs bluebird
+  npm install cordova-app-loader cordova-promise-fs bluebird
 ```
 
-**autoupdate.js** is a very simple usage of the `CordovaAppLoader` ([see code](https://github.com/markmarijnissen/cordova-app-loader/blob/master/autoupdate.js)). It includes all nessecary files (see "Usage") and implementes very simple update logic.
+### Getting started 
 
-* Whenever you launch or resume the app,
-* `check()` for a new manifest
-* `download()` files in the background
-* `update()` app (reloads page)
+1. Write a **manifest.json** (see below)
+2. The included **bootstrap.js** script will load your CSS and JS.
+3. Use **CordovaAppLoader** to `check()`, `download()` and `apply()` updates:
 
-This approach is **not** recommended because:
+```javascript
+  // When using NPM, require these first.
+  // When using the ready-made files, these are available as global variables.
+  var CordovaPromiseFS = require('cordova-promise-fs');
+  var CordovaAppLoader = require('cordova-app-loader');
+  var Promise = require('bluebird');
+
+  // Initialize a FileSystem
+  var fs = new CordovaPromiseFS({
+    Promise: Promise
+  });
+
+  // Initialize a CordovaAppLoader
+  var loader = new CordovaAppLoader({
+    fs: fs,
+    serverRoot: 'http://data.madebymark.nl/cordova-app-loader/'
+  });
+
+  // Write your own "check", "download" and "update" logic:
+  loader.check()
+  .then(function(){
+    return loader.download();
+  }).then(function(){
+    return loader.update();
+  })
+```
+
+See [an example](https://github.com/markmarijnissen/cordova-app-loader/blob/master/autoupdate.js).
+
+### Quickstart
+
+If you don't need full control, you can use a drop-in solution: [autoupdate.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.js)
+
+[autoupdate.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.js) includes all four files ([bootstrap.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/bootstrap.js), [a Promise library](https://raw.githubusercontent.com/RubenVerborgh/promiscuous/master/promiscuous.js),[CordovaPromiseFS.js](https://github.com/markmarijnissen/cordova-app-loader/blob/master/www/lib/CordovaPromiseFS.js) and [CordovaAppLoader.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/lib/CordovaAppLoader.js)), initializes everything, and then implements very simple update logic:
+
+1. When you open or resume the app (or when you switch tabs in Chrome)
+2. Check for updates
+3. Download files in the background
+3. Update automatically when download is ready.
+
+Here is how to get started:
+
+1. Download [index.html](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.html) to your `www` directory.
+2. Download [autoupdate.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.js) to your `www` directory.
+3. Make sure you set the correct options in `index.html`:
+    ```html
+    <script 
+        type="text/javascript" 
+        server="http://data.madebymark.nl/cordova-app-loader/" 
+        manifest="manifest.json" 
+        src="autoupdate.js"></script>
+    ```
+
+4. Launch your app.
+5. Upload a new **manifest.json** (+ files) to your server.
+6. Reopen your app to download and apply the update.
+
+This implementation is **not** recommended because:
 
 * Downloading files in the background can slow down performance (sluggish UI).
 * The update (reload) can interrupt an important user action.
 
 ## Usage
-
-Download and include:
-
-* [bootstrap.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/bootstrap.js) to launch your app.
-* A [Promise](https://github.com/petkaantonov/bluebird) library.
-* [CordovaPromiseFS.js](https://raw.githubusercontent.com/markmarijnissen/cordova-promise-fs/master/dist/CordovaPromiseFS.js) to handle the filesystem.
-* [CordovaAppLoader.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/lib/CordovaAppLoader.js) to handle check/download/update logic.
 
 ### Overview
 
@@ -181,12 +217,22 @@ Bundle a manifest.json with your app. This way, your app will also launch when n
 ### Step 3: Intialize CordovaAppLoader
 
 ```javascript
-var fs = new CordovaPromiseFS({});
-var loader = window.loader = new CordovaAppLoader({
+// When using NPM, require these first.
+// Otherwise these are available as global variables.
+var CordovaPromiseFS = require('cordova-promise-fs');
+var CordovaAppLoader = require('cordova-app-loader');
+var Promise = require('bluebird');
+
+// Initialize a FileSystem
+var fs = new CordovaPromiseFS({
+  Promise: Promise
+});
+
+// Initialize a CordovaAppLoader
+var loader = new CordovaAppLoader({
   fs: fs,
   serverRoot: 'http://data.madebymark.nl/cordova-app-loader/',
   localRoot: 'app',
-  mode: 'mirror',   // use same directories and filenames as in manifest (instead of using a hash)
   cacheBuster: true // make sure we're not downloading cached files.
   checkTimeout: 10000 // timeout for the "check" function - when you loose internet connection
 });

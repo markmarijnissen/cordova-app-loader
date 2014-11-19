@@ -109,6 +109,7 @@ function loadManifest(manifest,fromLocalStorage,timeout){
   }
 }
 //---------------------------------------------------------------------
+window.Manifest = {};
 // Step 1: Load manifest from localStorage
 var manifest = JSON.parse(localStorage.getItem('manifest'));
 // grab manifest.json location from <script manifest="..."></script>

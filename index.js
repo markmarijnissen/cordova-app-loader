@@ -26,6 +26,7 @@ function AppLoader(options){
   this.newManifestUrl = options.serverRoot + (options.manifest || 'manifest.json');
  
   // initialize a file cache
+  if(options.mode) options.mode = 'mirror';
   this.cache = new CordovaFileCache(options);
 
   // private stuff
