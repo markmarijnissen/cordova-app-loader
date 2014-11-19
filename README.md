@@ -125,7 +125,9 @@ This implementation is **not** recommended because:
 
 * Downloading files in the background can slow down performance (sluggish UI).
 * The update (reload) can interrupt an important user action.
+* **autoupdate.js** cannot be updated (and it includes CordovaAppLauncher!)
 
+**TODO:** Don't include **bootstrap.js** in **autoupdate.js**. This way, you can also update the **autoupdate.js** file.
 
 ## Manifest.json
 
@@ -341,18 +343,27 @@ If the app crashes during a download, it will restart using the original manifes
 
 ### Flexibility
 
-Yes, you need to include four files ([bootstrap.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/bootstrap.js), [a Promise library](https://raw.githubusercontent.com/RubenVerborgh/promiscuous/master/promiscuous.js), [CordovaPromiseFS.js](https://github.com/markmarijnissen/cordova-app-loader/blob/master/www/lib/CordovaPromiseFS.js) and [CordovaAppLoader.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/lib/CordovaAppLoader.js)) - but this is to create flexibility.
+Yes, you need to include four files - but this is to create flexibility.
 
-* I don't want to enforce a particular Promise library.
-* I want to reuse a single `CordovaPromiseFS` instance for the entire app. 
-* The **bootstrap.js** file cannot be updated, so it needs to be a minimal script/css loader.
-* `download()` can slow down performance and `update()` can interrupt the user - you need to decide yourself you want to handle this.
+* [bootstrap.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/bootstrap.js): This file cannot be updated, so it needs to be a minimal script/css loader.
+* [A Promise library](https://raw.githubusercontent.com/RubenVerborgh/promiscuous/master/promiscuous.js): I don't want to enforce a particular Promise library.
+* [CordovaPromiseFS.js](https://github.com/markmarijnissen/cordova-app-loader/blob/master/www/lib/CordovaPromiseFS.js): I want to reuse a single `CordovaPromiseFS` instance for the entire app.
+* [CordovaAppLoader.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/lib/CordovaAppLoader.js): `download()` can slow down performance and `update()` can interrupt the user - you need to decide yourself you want to handle this.
 
 If you don't care about this, you can use [autoupdate.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.js) as describe in QuickStart above.
+
+**TODO:** Include `CordovaPromiseFS.js` in the `CordovaAppLoader.js` build?
 
 ### More to be considered?
 
 Let me know if you find bugs. Report an issue!
+
+## TODO
+
+* Don't include **bootstrap.js** in **autoupdate.js** (and update example)
+* Include CordovaPromiseFS in the CordovaAppLoader build. Create a default instance if no CordovaPromiseFS instance is passed as option.
+* Write automatic tests? (Is this possible?)
+* Document and double-check all the urls and paths. (Especially: Do `serverUrl` and `Manifest.root` work together as expected?)
 
 
 ## Changelog
