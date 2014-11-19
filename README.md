@@ -125,19 +125,10 @@ This implementation is **not** recommended because:
 * Downloading files in the background can slow down performance (sluggish UI).
 * The update (reload) can interrupt an important user action.
 
-## Usage
 
-### Overview
+## Manifest.json
 
-1. Write a **manifest.json**
-2. Add **bootstrap.js** script to your **index.html**
-3. Instantiate a `new CordovaAppLoader()`
-4. `check()` for updates
-5. `download()` new files
-6. `update()` to apply update
-
-### Step 1: Write a manifest.json
-
+### Writing manifest.json
 Describe which files to download and which files to load during bootstrap.
 
 ```javascript
@@ -184,17 +175,29 @@ Describe which files to download and which files to load during bootstrap.
 }
 ```
 
-**Workflow tip:**
+### Updating manifest.json
 You can update your existing manifest like this:
 
 ```bash
-node bin/update-manifest www www/manifest.json
-node bin/update-manifest [root-directory] [manifest.json]
+node node_modules/cordova-app-loader/bin/update-manifest www www/manifest.json
+node node_modules/cordova-app-loader/bin/update-manifest [root-directory] [manifest.json]
 ```
 
 It will update the version of only changed files (with a hash of the content).
 
-### Step 2: Add [bootstrap.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/bootstrap.js) to your [index.html](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/index.html)
+Or check out [this gruntfile](https://gist.github.com/lylepratt/d8bf84b3b7d6932e3549).
+
+## Usage
+
+### Overview
+
+1. Add **bootstrap.js** script to your **index.html**
+2. Instantiate a `new CordovaAppLoader()`
+3. `check()` for updates
+4. `download()` new files
+5. `update()` to apply update
+
+### Step 1: Add [bootstrap.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/bootstrap.js) to your [index.html](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/index.html)
 
 Retrieves manifest.json and dynamically inserts JS/CSS to the current page.
 
@@ -204,13 +207,13 @@ Retrieves manifest.json and dynamically inserts JS/CSS to the current page.
 
 On the second run, the manifest.json is retrieved from localStorage.
 
-If after `timeout` milliseconds `window.BOOTSTRAP_OK` is **not** true, the (corrupt?) manifest in localStorage is destroyed, and the page will reload. So make sure you set `window.BOOTSTRAP_OK = true` when your app has succesfully loaded!
+Set `window.BOOTSTRAP_OK` to `true` when your app has succesfully launched.
 
-**Tip:**
+If your app is updated and `window.BOOTSTRAP_OK` is **not** true, the corrupt manifest in localStorage is destroyed, and the page will reload. This will revert the app back to the original manifest.
 
-Bundle a manifest.json with your app. This way, your app will also launch when not connected to the internet. When your app is updated, it will write a new manifest.json to localStorage. If this update is corrupt, it can safely revert to the bundled manifest.json
+You should always bundle a manifest.json (+ files) in your app to make sure your app has a "factory default" to revert back to. (And to make sure your app works offline).
 
-### Step 3: Intialize CordovaAppLoader
+### Step 2: Intialize CordovaAppLoader
 
 ```javascript
 // When using NPM, require these first.
@@ -234,7 +237,7 @@ var loader = new CordovaAppLoader({
 });
 ```
 
-### Step 4: Check for updates
+### Step 3: Check for updates
 
 ```javascript
 // download manifest from: serverRoot+'manifest.json'
@@ -249,7 +252,7 @@ loader.check({ files: { ... } }).then( ... )
 
 **Implementation Note:** Only file versions are compared! If you, for example, update `manifest.load` then the promise will return `false`!
 
-### Step 5: Download update
+### Step 4: Download update
 
 ```javascript
 loader.download(onprogress)
@@ -258,7 +261,7 @@ loader.download(onprogress)
 
 **Note:** When downloading, invalid files are deleted first. This invalidates the current manifest. Therefore, the current manifest is removed from localStorage. The app is reverted to "factory settings" (the manifest.json that comes bundled with the app).
 
-### Step 6: Apply update (reload page to bootstrap new files)
+### Step 5: Apply update (reload page to bootstrap new files)
 
 This writes the new manifest to localStorage and reloads the page to bootstrap the updated app.
 
