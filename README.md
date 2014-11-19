@@ -106,7 +106,8 @@ If you don't need full control, you can use a drop-in solution: [autoupdate.js](
 
 1. Download [index.html](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.html) to your `www` directory.
 2. Download [autoupdate.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.js) to your `www` directory.
-3. Make sure you set the correct options in `index.html`:
+3. Write a **manifest.json** (see below)
+4. Make sure you set the correct options in `index.html`:
     ```html
     <script 
         type="text/javascript" 
@@ -115,10 +116,10 @@ If you don't need full control, you can use a drop-in solution: [autoupdate.js](
         src="autoupdate.js"></script>
     ```
 
-4. Write `window.BOOTSTRAP_OK = true` in your code when your app succesfully launches.
-5. Launch your app.
-6. Upload a new **manifest.json** (+ files) to your server.
-7. Reopen your app to download and apply the update.
+5. Write `window.BOOTSTRAP_OK = true` in your code when your app succesfully launches.
+6. Launch your app.
+7. Upload a new **manifest.json** (+ files) to your server.
+8. Reopen your app to download and apply the update.
 
 This implementation is **not** recommended because:
 
@@ -340,11 +341,14 @@ If the app crashes during a download, it will restart using the original manifes
 
 ### Flexibility
 
-Yes, you need to include four files ([bootstrap.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/bootstrap.js), [a Promise library](https://raw.githubusercontent.com/RubenVerborgh/promiscuous/master/promiscuous.js), [CordovaPromiseFS.js](https://github.com/markmarijnissen/cordova-app-loader/blob/master/www/lib/CordovaPromiseFS.js) and [CordovaAppLoader.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/lib/CordovaAppLoader.js)) - but is is to create flexibility.
+Yes, you need to include four files ([bootstrap.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/bootstrap.js), [a Promise library](https://raw.githubusercontent.com/RubenVerborgh/promiscuous/master/promiscuous.js), [CordovaPromiseFS.js](https://github.com/markmarijnissen/cordova-app-loader/blob/master/www/lib/CordovaPromiseFS.js) and [CordovaAppLoader.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/lib/CordovaAppLoader.js)) - but this is to create flexibility.
 
-* I don't want to enfore a particular Promise library. This is why need to pass a `Promise` to `CordovaPromiseFS`
-* I want to use a single `CordovaPromiseFS` instance for the entire app. This is why `CordovaAppLoader` does not create one for you. (You pass the instance as an option to `CordovaAppLoader`). (**TODO:** Instantiate default CordovaPromiseFS when not given an instance?)
-* The **bootstrap.js** file cannot be updated. This is why it needs to be a minimal script/css loader. Also, you can use **bootstrap.js** without CordovaAppLoader if you point it to a remote manifest (and you load online files instead of cached files).
+* I don't want to enforce a particular Promise library.
+* I want to reuse a single `CordovaPromiseFS` instance for the entire app. 
+* The **bootstrap.js** file cannot be updated, so it needs to be a minimal script/css loader.
+* `download()` can slow down performance and `update()` can interrupt the user - you need to decide yourself you want to handle this.
+
+If you don't care about this, you can use [autoupdate.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/autoupdate.js) as describe in QuickStart above.
 
 ### More to be considered?
 
