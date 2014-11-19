@@ -48,6 +48,7 @@
 	window.CordovaFileCache = __webpack_require__(2);
 	window.CordovaPromiseFS = __webpack_require__(3);
 	window.Promise = __webpack_require__(4);
+	window.setImmediate = window.setTimeout; // for promiscuous to work!
 
 /***/ },
 /* 1 */
@@ -239,7 +240,7 @@
 	  // normalize path
 	  this._localRoot = options.localRoot || 'data';
 	  if(this._localRoot[this._localRoot.length -1] !== '/') this._localRoot += '/';
-	  if(this._localRoot[0] !== '/') this._localRoot = '/' + this._localRoot;
+	  if(this._localRoot[0] === '/') this._localRoot = this._localRoot.substr(1);
 
 	  this._serverRoot = options.serverRoot || '';
 	  if(!!this._serverRoot && this._serverRoot[this._serverRoot.length-1] !== '/') this._serverRoot += '/';

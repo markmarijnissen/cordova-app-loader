@@ -336,6 +336,10 @@ Let me know if you find bugs. Report an issue!
 
 ## Changelog
 
+### 0.6.1 (19/11/2014)
+
+* Updated file-cache dependency for android bugfix
+
 ### 0.6.0 (19/11/2014)
 
 * Created a `dist` folder to for all build files
