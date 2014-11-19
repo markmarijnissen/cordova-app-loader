@@ -338,6 +338,14 @@ If the app crashes during a download, it will restart using the original manifes
 
 * When `BOOTSTRAP_OK` is not set to `true` after a timeout, the app will destroy the current manifest and revert back to the original manifest.
 
+### Flexibility
+
+Yes, you need to include four files ([bootstrap.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/bootstrap.js), [a Promise library](https://raw.githubusercontent.com/RubenVerborgh/promiscuous/master/promiscuous.js), [CordovaPromiseFS.js](https://github.com/markmarijnissen/cordova-app-loader/blob/master/www/lib/CordovaPromiseFS.js) and [CordovaAppLoader.js](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/lib/CordovaAppLoader.js)) - but is is to create flexibility.
+
+* I don't want to enfore a particular Promise library. This is why need to pass a `Promise` to `CordovaPromiseFS`
+* I want to use a single `CordovaPromiseFS` instance for the entire app. This is why `CordovaAppLoader` does not create one for you. (You pass the instance as an option to `CordovaAppLoader`). (**TODO:** Instantiate default CordovaPromiseFS when not given an instance?)
+* The **bootstrap.js** file cannot be updated. This is why it needs to be a minimal script/css loader. Also, you can use **bootstrap.js** without CordovaAppLoader if you point it to a remote manifest (and you load online files instead of cached files).
+
 ### More to be considered?
 
 Let me know if you find bugs. Report an issue!
