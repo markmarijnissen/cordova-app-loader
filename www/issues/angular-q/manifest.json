@@ -1,0 +1,21 @@
+{
+  "files": {
+    "angular": {
+      "version": "1",
+      "filename": "issues/angular-q/angular.js"
+    },
+    "issue": {
+      "version": "1",
+      "filename": "issues/angular-q/issue.js"
+    },
+    "CordovaPromiseFS": {
+      "version": "2",
+      "filename": "lib/CordovaPromiseFS.js"
+    }
+  },
+  "load": [
+    "lib/CordovaPromiseFS.js",
+    "issues/angular-q/angular.js",
+    "issues/angular-q/issue.js"
+  ]
+}

@@ -212,6 +212,11 @@ var CordovaAppLoader =
 	  window.ProgressEvent = function ProgressEvent(){}
 	}
 
+	function removeFirstSlash(path){
+	  if(path[0] === '/') path = path.substr(1);
+	  return path;
+	}
+
 	/* Cordova File Cache x */
 	function FileCache(options){
 	  // cordova-promise-fs
@@ -229,9 +234,8 @@ var CordovaAppLoader =
 	  this._cacheBuster = !!options.cacheBuster;
 
 	  // normalize path
-	  this._localRoot = options.localRoot || 'data';
+	  this._localRoot = removeFirstSlash(options.localRoot || 'data');
 	  if(this._localRoot[this._localRoot.length -1] !== '/') this._localRoot += '/';
-	  if(this._localRoot[0] === '/') this._localRoot = this._localRoot.substr(1);
 
 	  this._serverRoot = options.serverRoot || '';
 	  if(!!this._serverRoot && this._serverRoot[this._serverRoot.length-1] !== '/') this._serverRoot += '/';
@@ -256,7 +260,8 @@ var CordovaAppLoader =
 	    self._fs.list(self._localRoot,'rfe').then(function(entries){
 	      self._cached = {};
 	      entries = entries.map(function(entry){
-	        self._cached[entry.fullPath] = {
+	        var fullPath = removeFirstSlash(entry.fullPath);
+	        self._cached[fullPath] = {
 	          toInternalURL: isCordova? entry.toInternalURL(): entry.toURL(),
 	          toURL: entry.toURL(),
 	        };
@@ -446,7 +451,7 @@ var CordovaAppLoader =
 	    url = url || '';
 	    len = this._serverRoot.length;
 	    if(url.substr(0,len) !== this._serverRoot) {
-	      if(url[0] === '/') url = url.substr(1);
+	      url = removeFirstSlash(url);
 	      return this._localRoot + url;
 	    } else {
 	      return this._localRoot + url.substr(len);
