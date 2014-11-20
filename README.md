@@ -66,6 +66,54 @@ Now you can remote update your app:
 6. Upload a new **manifest.json** (+ files) to your server.
 7. Reopen your app to download and apply the update.
 
+## Installation
+
+### Setup Cordova
+
+```bash
+  cordova platform add ios@3.7.0
+  cordova plugin add org.apache.cordova.file
+  cordova plugin add org.apache.cordova.file-transfer
+```
+
+**IMPORTANT:** For iOS, use Cordova 3.7.0 or higher (due to a [bug](https://github.com/AppGyver/steroids/issues/534) that affects requestFileSystem).
+
+###Download and include bootstrap.js
+
+You need **bootstrap.js** ([github](https://github.com/markmarijnissen/cordova-app-loader/), [file](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/bootstrap.js)) to read the **manifest.json** to launch your app. 
+
+Add **bootstrap.js** to your [index.html](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/index.html).
+
+### Download and include CordovaAppLoader (and dependencies)
+
+**Option 1: Download all dependencies as a single pre-build file (easy)**
+
+Download cordova-app-loader-complete.js ([github](https://github.com/markmarijnissen/cordova-app-loader/blob/master/dist/cordova-app-loader-complete.js), [download](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/dist/cordova-app-loader-complete.js), [minified](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/dist/cordova-app-loader-complete.min.js)). This build uses promiscuous ([github](https://github.com/RubenVerborgh/promiscuous),[download](https://raw.githubusercontent.com/RubenVerborgh/promiscuous/master/promiscuous.js)) as Promise library.
+
+**Option 2: Download pre-build files for every module (customizable)**
+
+If you want to use your own Promise library, you have to load every module individually:
+
+* **cordova-app-loader** ([github](https://github.com/markmarijnissen/cordova-app-loader/), [download](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/lib/CordovaAppLoader.js)) - checks, downloads and updates using **manifest.json**
+* **cordova-promise-fs** ([github](https://github.com/markmarijnissen/cordova-promise-fs), [download](https://github.com/markmarijnissen/cordova-app-loader/blob/master/www/lib/CordovaPromiseFS.js)) - deals with the Cordova File API
+* a **Promise** libary that follows the [Promise/A+ spec](https://promisesaplus.com/), such as bluebird ([github](https://github.com/petkaantonov/bluebird), [download](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/lib/bluebird.js)), promiscuous ([github](https://github.com/RubenVerborgh/promiscuous),[file](https://raw.githubusercontent.com/RubenVerborgh/promiscuous/master/promiscuous.js)) or [Angular's $q](https://docs.angularjs.org/api/ng/service/$q).
+
+**Option 3: Use Bower to fetch pre-build modules:**
+
+```bash
+  bower install cordova-app-loader 
+  bower install cordova-promise-fs 
+  bower install bluebird # or another library that follows the Promise/A+ spec.
+```
+
+**Option 4: Use NPM  to fetch CommonJS modules:**
+
+```bash
+  npm install cordova-app-loader 
+  npm install cordova-promise-fs
+  npm install bluebird  # or another library that follows the Promise/A+ spec.
+```
+
 ## The Manifest
 
 Before you start, you need to write a **manifest.json** to describe:
@@ -119,56 +167,7 @@ node node_modules/cordova-app-loader/bin/update-manifest [root-directory] [manif
 
 It will update the version of only changed files (with a hash of the content).
 
-Thre is also [a Gruntfile](https://gist.github.com/lylepratt/d8bf84b3b7d6932e3549) available.
-
-
-## Installation
-
-### Setup Cordova
-
-```bash
-  cordova platform add ios@3.7.0
-  cordova plugin add org.apache.cordova.file
-  cordova plugin add org.apache.cordova.file-transfer
-```
-
-**IMPORTANT:** For iOS, use Cordova 3.7.0 or higher (due to a [bug](https://github.com/AppGyver/steroids/issues/534) that affects requestFileSystem).
-
-###Download and include bootstrap.js
-
-You need **bootstrap.js** ([github](https://github.com/markmarijnissen/cordova-app-loader/), [file](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/bootstrap.js)) to read the **manifest.json** to launch your app. 
-
-Add **bootstrap.js** to your [index.html](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/index.html).
-
-### Download and include CordovaAppLoader (and dependencies)
-
-**Option 1: Download all dependencies as a single pre-build file (easy)**
-
-Download cordova-app-loader-complete.js ([github](https://github.com/markmarijnissen/cordova-app-loader/blob/master/dist/cordova-app-loader-complete.js), [download](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/dist/cordova-app-loader-complete.js), [minified](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/dist/cordova-app-loader-complete.min.js)). This build uses promiscuous ([github](https://github.com/RubenVerborgh/promiscuous),[download](https://raw.githubusercontent.com/RubenVerborgh/promiscuous/master/promiscuous.js)) as Promise library.
-
-**Option 2: Download pre-build files for every module (customizable)**
-
-If you want to use your own Promise library, you have to load every module individually:
-
-* **cordova-app-loader** ([github](https://github.com/markmarijnissen/cordova-app-loader/), [download](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/lib/CordovaAppLoader.js)) - checks, downloads and updates using **manifest.json**
-* **cordova-promise-fs** ([github](https://github.com/markmarijnissen/cordova-promise-fs), [download](https://github.com/markmarijnissen/cordova-app-loader/blob/master/www/lib/CordovaPromiseFS.js)) - deals with the Cordova File API
-* a **Promise** libary such as bluebird ([github](https://github.com/petkaantonov/bluebird), [download](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/www/lib/bluebird.js)) or promiscuous ([github](https://github.com/RubenVerborgh/promiscuous),[file](https://raw.githubusercontent.com/RubenVerborgh/promiscuous/master/promiscuous.js))
-
-**Option 3: Use Bower to fetch pre-build modules:**
-
-```bash
-  bower install cordova-app-loader 
-  bower install cordova-promise-fs 
-  bower install bluebird # or whatever Promise library you want
-```
-
-**Option 4: Use NPM  to fetch CommonJS modules:**
-
-```bash
-  npm install cordova-app-loader 
-  npm install cordova-promise-fs
-  npm install bluebird # or whatever Promise library you want
-```
+There is also [a Gruntfile](https://gist.github.com/lylepratt/d8bf84b3b7d6932e3549) available.
 
 ## Usage / API
 
