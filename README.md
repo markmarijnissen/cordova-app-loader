@@ -259,6 +259,26 @@ loader.update(false)
 
 **Implementation Note:** CordovaAppLoader changes the `manifest.root` to point to your file cache - otherwise the bootstrap script can't find the downloaded files!
 
+## Testing
+
+With the demo app, you can test:
+
+* Check, with a new manfiest (resolve true)
+* Check, with no new manifest (resolve false)
+* Check, with no internet (reject timeout)
+* Download (resolve with manifest)
+* Download with no internet / while interrupting internet (resolve if withing retry attempts, reject with error otherwise)
+* Download without checking (null)
+* Update (true if update possible, false otherwise)
+* Reset to factory
+* Slow Download (progress bar)
+* Broken Link (reject download with broken link)
+* Broken App (resets back to factory)
+
+There are also [unit tests](http://data.madebymark.nl/cordova-app-loader/test/) (*Chrome only!*).
+
+It includes unit tests for [CordovaPromiseFS](https://github.com/markmarijnissen/cordova-promise-fs) and [CordovaFileCache](https://github.com/markmarijnissen/cordova-file-cache).
+
 ## Design Decisions
 
 I want CordovaAppLoader to be fast, responsive, flexible, reliable and safe. In order to do this, I've made the following decisions:
@@ -338,7 +358,7 @@ Let me know if you find bugs. Report an issue!
 ### 0.7.0 (28/11/2014)
 
 * Fixed a nasty path issue (remove prepending / when getting files to delete to match convention of file-cache - otherwise check will always return true!)
-* Added initial tests.
+* Added initial [QUnit tests](http://data.madebymark.nl/cordova-app-loader/test/).
 * Updated dependencies.
 
 ### 0.6.1 (19/11/2014)
