@@ -329,11 +329,17 @@ Let me know if you find bugs. Report an issue!
 ## TODO
 
 * Create a demo for **autoupdate.js**
-* Write automatic tests? (Is this possible?)
 * Document and double-check all the urls and paths. (Especially: Do `serverUrl` and `Manifest.root` work together as expected?)
+* TODO: safety - if reverting to factory, don't attempt again to use an invalid manifest!
 
 
 ## Changelog
+
+### 0.7.0 (28/11/2014)
+
+* Fixed a nasty path issue (remove prepending / when getting files to delete to match convention of file-cache - otherwise check will always return true!)
+* Added initial tests.
+* Updated dependencies.
 
 ### 0.6.1 (19/11/2014)
 

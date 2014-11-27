@@ -4,7 +4,9 @@ var Promise = null;
 function createFilemap(files){
   var result = {};
   Object.keys(files).forEach(function(key){
-    result[files[key].filename] = files[key];
+    var filename = files[key].filename;
+    if(filename[0] === '/') filename = filename[0].substr(1);
+    result[filename] = files[key];
   });
   return result;
 }
@@ -47,12 +49,12 @@ AppLoader.prototype.check = function(newManifest){
 
     function checkManifest(newManifest){
       // make sure cache is ready for the DIFF operations!
-      self.cache.ready.then(function(){
+      self.cache.ready.then(function(list){
         if(!newManifest.files){
           reject('Downloaded Manifest has no "files" attribute.');
           return;
         }
-        
+
         var newFiles = createFilemap(newManifest.files);
         var oldFiles = createFilemap(manifest.files);
 
@@ -63,17 +65,18 @@ AppLoader.prototype.check = function(newManifest){
                    || oldFiles[file].version !== newFiles[file].version
                    || !self.cache.isCached(file);
           });
-        
+
         self.cache.list().then(function(files){
           self._toBeDeleted = files
             .map(function(file){
+              if(file[0] === '/') file = file.substr(1);
               return file.substr(self.cache._localRoot.length);
             })
             .filter(function(file){
               return !newFiles[file];
             })
             .concat(self._toBeDownloaded);
-            
+
           if(self._toBeDeleted.length > 0 || self._toBeDownloaded.length > 0){
             // Save the new Manifest
             self.newManifest = newManifest;

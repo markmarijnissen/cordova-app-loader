@@ -1,0 +1,52 @@
+{
+  "files": {
+    "jquery": {
+      "version": "afb90752e0a90c24b7f724faca86c5f3d15d1178",
+      "filename": "lib/jquery.min.js"
+    },
+    "pegasus": {
+      "version": "afb90752e0a90c24b7f724faca86c5f3d15d1178",
+      "filename": "test/pegasus.js"
+    },
+    "qunit-setup": {
+      "version": "afb90752e0a90c24b7f724faca86c5f3d15d1178",
+      "filename": "test/init.js"
+    },
+    "qunit-js": {
+      "version": "afb90752e0a90c24b7f724faca86c5f3d15d1178",
+      "filename": "test/qunit-1.15.0.js"
+    },
+    "qunit-css": {
+      "version": "afb90752e0a90c24b7f724faca86c5f3d15d1178",
+      "filename": "test/qunit-1.15.0.css"
+    },
+    "app-loader-complete": {
+      "version": "58f3b1d28ea7dda0c1c336360b26f92e3f24731e",
+      "filename": "lib/cordova-app-loader-complete.js"
+    },
+    "promise-fs-tests": {
+      "version": "3e70f2873de3d9c91e31271c1a59b32e8002ac23",
+      "filename": "test/cordova-promise-fs-tests.js"
+    },
+    "file-cache-tests": {
+      "version": "812c8c5632e276d6456dca04d624200fd1acb6c7",
+      "filename": "test/cordova-file-cache-tests.js"
+    },
+    "app-loader-tests": {
+      "version": "16285dcb3fc5d9f7c1af162e58aa0009853e5db7",
+      "filename": "test/tests.js"
+    }
+  },
+  "load": [
+    "lib/jquery.min.js",
+    "test/init.js",
+    "test/qunit-1.15.0.css"
+    "test/qunit-1.15.0.js"
+    "test/pegasus.js",
+    "test/cordova-app-loader-complete.js",
+    "test/cordova-promise-fs-tests.js",
+    "test/cordova-file-cache-tests.js",
+    "test/cordova-app-loaders-tests.js",
+  ],
+  "version": "3e3b4e3cdbd479b804df4bc8d0834ffa3bf1911a"
+}

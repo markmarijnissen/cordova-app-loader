@@ -122,6 +122,7 @@ var CordovaPromiseFS =
 	        xhr.send();
 	        return xhr;
 	      };
+	      window.ProgressEvent = function ProgressEvent(){};
 	    } else {
 	      window.requestFileSystem = function(x,y,z,fail){
 	        fail(new Error('requestFileSystem not supported!'));
@@ -327,9 +328,11 @@ var CordovaPromiseFS =
 	        if(fileEntry !== false) {
 	          fileEntry.remove(resolve,reject);
 	        } else {
-	          resolve();
+	          resolve(1);
 	        }
 	      },reject);
+	    }).then(function(val){
+	      return val === 1? false: true;
 	    });
 	  }
 
@@ -421,7 +424,7 @@ var CordovaPromiseFS =
 	    if(typeof transferOptions === 'function') {
 	      onprogress = transferOptions;
 	      transferOptions = {};
-	    }
+	    } 
 	    serverUrl = encodeURI(serverUrl);
 	    if(isCordova) localPath = toInternalURLSync(localPath);
 
@@ -432,6 +435,7 @@ var CordovaPromiseFS =
 	    transferOptions.retry = transferOptions.retry.concat();
 	    
 	    var ft = new FileTransfer();
+	    onprogress = onprogress || transferOptions.onprogress;
 	    if(typeof onprogress === 'function') ft.onprogress = onprogress;
 	    var promise = new Promise(function(resolve,reject){
 	      var attempt = function(err){
