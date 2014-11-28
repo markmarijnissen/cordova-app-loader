@@ -48,32 +48,23 @@ var CordovaAppLoader =
 	var CordovaFileCache = __webpack_require__(1);
 	var Promise = null;
 
-	function createFilemap(files){
-	  var result = {};
-	  Object.keys(files).forEach(function(key){
-	    var filename = files[key].filename;
-	    if(filename[0] === '/') filename = filename[0].substr(1);
-	    result[filename] = files[key];
-	  });
-	  return result;
-	}
-
 	function AppLoader(options){
 	  if(!options) throw new Error('CordovaAppLoader has no options!');
 	  if(!options.fs) throw new Error('CordovaAppLoader has no "fs" option (cordova-promise-fs)');
 	  if(!options.serverRoot) throw new Error('CordovaAppLoader has no "serverRoot" option.');
 	  if(!window.pegasus || !window.Manifest) throw new Error('CordovaAppLoader bootstrap.js is missing.');
 	  Promise = options.fs.Promise;
-	  
-	  // initialize variables 
+
+	  // initialize variables
 	  this.manifest = window.Manifest;
 	  this.newManifest = null;
+	  this._lastUpdateManifest = localStorage.getItem('last_update_manifest');
 
 	  // normalize serverRoot and set remote manifest url
 	  options.serverRoot = options.serverRoot || '';
 	  if(!!options.serverRoot && options.serverRoot[options.serverRoot.length-1] !== '/') options.serverRoot += '/';
 	  this.newManifestUrl = options.serverRoot + (options.manifest || 'manifest.json');
-	 
+
 	  // initialize a file cache
 	  if(options.mode) options.mode = 'mirror';
 	  this.cache = new CordovaFileCache(options);
@@ -85,6 +76,16 @@ var CordovaAppLoader =
 	  this._checkTimeout = options.checkTimeout || 10000;
 	}
 
+	AppLoader.prototype._createFilemap = function(files){
+	  var result = {};
+	  var normalize = this.cache._fs.normalize;
+	  Object.keys(files).forEach(function(key){
+	    files[key].filename = normalize(files[key].filename);
+	    result[files[key].filename] = files[key];
+	  });
+	  return result;
+	};
+
 	AppLoader.prototype.check = function(newManifest){
 	  var self = this, manifest = this.manifest;
 
@@ -95,6 +96,11 @@ var CordovaAppLoader =
 	    }
 
 	    function checkManifest(newManifest){
+	      if(JSON.stringify(newManifest) === self._lastUpdateManifest) {
+	        resolve(false);
+	        return;
+	      }
+
 	      // make sure cache is ready for the DIFF operations!
 	      self.cache.ready.then(function(list){
 	        if(!newManifest.files){
@@ -102,8 +108,8 @@ var CordovaAppLoader =
 	          return;
 	        }
 
-	        var newFiles = createFilemap(newManifest.files);
-	        var oldFiles = createFilemap(manifest.files);
+	        var newFiles = self._createFilemap(newManifest.files);
+	        var oldFiles = self._createFilemap(manifest.files);
 
 	        // Create the diff
 	        self._toBeDownloaded = Object.keys(newFiles)
@@ -116,8 +122,7 @@ var CordovaAppLoader =
 	        self.cache.list().then(function(files){
 	          self._toBeDeleted = files
 	            .map(function(file){
-	              if(file[0] === '/') file = file.substr(1);
-	              return file.substr(self.cache._localRoot.length);
+	              return file.substr(self.cache.localRoot.length);
 	            })
 	            .filter(function(file){
 	              return !newFiles[file];
@@ -127,7 +132,7 @@ var CordovaAppLoader =
 	          if(self._toBeDeleted.length > 0 || self._toBeDownloaded.length > 0){
 	            // Save the new Manifest
 	            self.newManifest = newManifest;
-	            self.newManifest.root = self.cache.toInternalURL('/') + (self.newManifest.root || '');
+	            self.newManifest.root = self.cache.localInternalURL;
 	            resolve(true);
 	          } else {
 	            resolve(false);
@@ -181,7 +186,9 @@ var CordovaAppLoader =
 	AppLoader.prototype.update = function(reload){
 	  if(this._updateReady) {
 	    // update manifest
-	    localStorage.setItem('manifest',JSON.stringify(this.newManifest));
+	    json = JSON.stringify(this.newManifest);
+	    localStorage.setItem('manifest',json);
+	    localStorage.setItem('last_update_manifest',json);
 	    if(reload !== false) location.reload();
 	    return true;
 	  }
@@ -211,11 +218,6 @@ var CordovaAppLoader =
 	var Promise = null;
 	var isCordova = typeof cordova !== 'undefined';
 
-	function removeFirstSlash(path){
-	  if(path[0] === '/') path = path.substr(1);
-	  return path;
-	}
-
 	/* Cordova File Cache x */
 	function FileCache(options){
 	  var self = this;
@@ -234,12 +236,8 @@ var CordovaAppLoader =
 	  this._cacheBuster = !!options.cacheBuster;
 
 	  // normalize path
-	  this._localRoot = removeFirstSlash(options.localRoot || 'data');
-	  if(this._localRoot[this._localRoot.length -1] !== '/') this._localRoot += '/';
-
-	  this._serverRoot = options.serverRoot || '';
-	  if(!!this._serverRoot && this._serverRoot[this._serverRoot.length-1] !== '/') this._serverRoot += '/';
-	  if(this._serverRoot === './') this._serverRoot = '';
+	  this.localRoot = this._fs.normalize(options.localRoot || 'data');
+	  this.serverRoot = this._fs.normalize(options.serverRoot || '');
 
 	  // set internal variables
 	  this._downloading = [];    // download promises
@@ -247,7 +245,10 @@ var CordovaAppLoader =
 	  this._cached = {};         // cached files
 
 	  // list existing cache contents
-	  this.ready = this._fs.ensure(this._localRoot).then(function(){
+	  this.ready = this._fs.ensure(this.localRoot)
+	  .then(function(entry){
+	    self.localInternalURL = isCordova? entry.toInternalURL(): entry.toURL();
+	    self.localUrl = entry.toURL();
 	    return self.list();
 	  });
 	}
@@ -259,15 +260,15 @@ var CordovaAppLoader =
 	FileCache.prototype.list = function list(){
 	  var self = this;
 	  return new Promise(function(resolve,reject){
-	    self._fs.list(self._localRoot,'rfe').then(function(entries){
+	    self._fs.list(self.localRoot,'rfe').then(function(entries){
 	      self._cached = {};
 	      entries = entries.map(function(entry){
-	        var fullPath = removeFirstSlash(entry.fullPath);
+	        var fullPath = self._fs.normalize(entry.fullPath);
 	        self._cached[fullPath] = {
 	          toInternalURL: isCordova? entry.toInternalURL(): entry.toURL(),
 	          toURL: entry.toURL(),
 	        };
-	        return entry.fullPath;
+	        return fullPath;
 	      });
 	      resolve(entries);
 	    },function(){
@@ -329,7 +330,7 @@ var CordovaAppLoader =
 	    // make sure cache directory exists and that
 	    // we have retrieved the latest cache contents
 	    // to avoid downloading files we already have!
-	    fs.ensure(self._localRoot).then(function(){
+	    fs.ensure(self.localRoot).then(function(){
 	      return self.list();
 	    }).then(function(){
 	      // no dowloads needed, resolve
@@ -414,8 +415,8 @@ var CordovaAppLoader =
 	FileCache.prototype.clear = function clear(){
 	  var self = this;
 	  this._cached = {};
-	  return this._fs.removeDir(this._localRoot).then(function(){
-	    return self._fs.ensure(self._localRoot);
+	  return this._fs.removeDir(this.localRoot).then(function(){
+	    return self._fs.ensure(self.localRoot);
 	  });
 	};
 
@@ -444,8 +445,8 @@ var CordovaAppLoader =
 	};
 
 	FileCache.prototype.toServerURL = function toServerURL(path){
-	  if(path[0] === '/') path = path.substr(1);
-	  return path.indexOf('://') < 0? this._serverRoot + path: path;
+	  path = this._fs.normalize(path);
+	  return path.indexOf('://') < 0? this.serverRoot + path: path;
 	};
 
 	/**
@@ -453,16 +454,15 @@ var CordovaAppLoader =
 	 */
 	FileCache.prototype.toPath = function toPath(url){
 	  if(this._mirrorMode) {
-	    url = url || '';
-	    len = this._serverRoot.length;
-	    if(url.substr(0,len) !== this._serverRoot) {
-	      url = removeFirstSlash(url);
-	      return this._localRoot + url;
+	    url = url = this._fs.normalize(url || '');
+	    len = this.serverRoot.length;
+	    if(url.substr(0,len) !== this.serverRoot) {
+	      return this.localRoot + url;
 	    } else {
-	      return this._localRoot + url.substr(len);
+	      return this.localRoot + url.substr(len);
 	    }
 	  } else {
-	    return this._localRoot + hash(url) + url.substr(url.lastIndexOf('.'));
+	    return this.localRoot + hash(url) + url.substr(url.lastIndexOf('.'));
 	  }
 	};
 

@@ -1,7 +1,7 @@
 
 var fs = new CordovaPromiseFS({ persistent: typeof cordova !== 'undefined' });
-var SERVER = 'http://data.madebymark.nl/cordova-app-loader/';
-//var SERVER = 'http://localhost:8080/';
+//var SERVER = 'http://data.madebymark.nl/cordova-app-loader/';
+var SERVER = 'http://localhost:8181/';
 
 var loader = window.loader = new CordovaAppLoader({
   fs: fs,

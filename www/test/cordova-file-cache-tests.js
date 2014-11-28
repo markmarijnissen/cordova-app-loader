@@ -25,15 +25,15 @@
 	});
 
 	QUnit.test('normalize "localRoot" to "cache-test/"',function(assert){
-		assert.equal(cache._localRoot,'cache-test/');
+		assert.equal(cache.localRoot,'cache-test/');
 	});
 
 	QUnit.test('normalize "serverRoot" to end with "/"',function(assert){
-		assert.equal(cache._serverRoot[cache._serverRoot.length-1],'/');
+		assert.equal(cache.serverRoot[cache.serverRoot.length-1],'/');
 	});
 
 	QUnit.asyncTest('"localRoot" exists',function(assert){
-		fs.list(cache._localRoot,'rfd').then(ok(assert,truthy),err(assert));
+		fs.list(cache.localRoot,'rfd').then(ok(assert,truthy),err(assert));
 	});
 
 	/*************************************/
@@ -46,7 +46,7 @@
 				return cache.clear();
 			})
 			.then(function(){
-				return fs.list(cache._localRoot,'rfd');
+				return fs.list(cache.localRoot,'rfd');
 			})
 			.then(function(list){
 				assert.equal(list.length,0);
@@ -128,7 +128,7 @@
 				assert.deepEqual(x,cache,'download returns cache');
 				assert.equal(cache.isCached(file2),true,'file2 is cached');
 				assert.equal(cache.isCached(file3),true,'file3 is cached');
-				return fs.list(cache._localRoot,'rf');
+				return fs.list(cache.localRoot,'rf');
 			})
 			.then(function(list){
 				assert.deepEqual(list,['/cache-test/file3.txt','/cache-test/file2.txt','/cache-test/file1.txt'],'files are really there!');
@@ -228,7 +228,7 @@
 				return cache.clear();
 			})
 			.then(function(){
-				return fs.list(cache._localRoot,'rfd');
+				return fs.list(cache.localRoot,'rfd');
 			})
 			.then(function(list){
 				assert.equal(list.length,0);

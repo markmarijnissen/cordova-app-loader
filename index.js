@@ -1,32 +1,23 @@
 var CordovaFileCache = require('cordova-file-cache');
 var Promise = null;
 
-function createFilemap(files){
-  var result = {};
-  Object.keys(files).forEach(function(key){
-    var filename = files[key].filename;
-    if(filename[0] === '/') filename = filename[0].substr(1);
-    result[filename] = files[key];
-  });
-  return result;
-}
-
 function AppLoader(options){
   if(!options) throw new Error('CordovaAppLoader has no options!');
   if(!options.fs) throw new Error('CordovaAppLoader has no "fs" option (cordova-promise-fs)');
   if(!options.serverRoot) throw new Error('CordovaAppLoader has no "serverRoot" option.');
   if(!window.pegasus || !window.Manifest) throw new Error('CordovaAppLoader bootstrap.js is missing.');
   Promise = options.fs.Promise;
-  
-  // initialize variables 
+
+  // initialize variables
   this.manifest = window.Manifest;
   this.newManifest = null;
+  this._lastUpdateManifest = localStorage.getItem('last_update_manifest');
 
   // normalize serverRoot and set remote manifest url
   options.serverRoot = options.serverRoot || '';
   if(!!options.serverRoot && options.serverRoot[options.serverRoot.length-1] !== '/') options.serverRoot += '/';
   this.newManifestUrl = options.serverRoot + (options.manifest || 'manifest.json');
- 
+
   // initialize a file cache
   if(options.mode) options.mode = 'mirror';
   this.cache = new CordovaFileCache(options);
@@ -38,6 +29,16 @@ function AppLoader(options){
   this._checkTimeout = options.checkTimeout || 10000;
 }
 
+AppLoader.prototype._createFilemap = function(files){
+  var result = {};
+  var normalize = this.cache._fs.normalize;
+  Object.keys(files).forEach(function(key){
+    files[key].filename = normalize(files[key].filename);
+    result[files[key].filename] = files[key];
+  });
+  return result;
+};
+
 AppLoader.prototype.check = function(newManifest){
   var self = this, manifest = this.manifest;
 
@@ -48,6 +49,11 @@ AppLoader.prototype.check = function(newManifest){
     }
 
     function checkManifest(newManifest){
+      if(JSON.stringify(newManifest) === self._lastUpdateManifest) {
+        resolve(false);
+        return;
+      }
+
       // make sure cache is ready for the DIFF operations!
       self.cache.ready.then(function(list){
         if(!newManifest.files){
@@ -55,8 +61,8 @@ AppLoader.prototype.check = function(newManifest){
           return;
         }
 
-        var newFiles = createFilemap(newManifest.files);
-        var oldFiles = createFilemap(manifest.files);
+        var newFiles = self._createFilemap(newManifest.files);
+        var oldFiles = self._createFilemap(manifest.files);
 
         // Create the diff
         self._toBeDownloaded = Object.keys(newFiles)
@@ -69,8 +75,7 @@ AppLoader.prototype.check = function(newManifest){
         self.cache.list().then(function(files){
           self._toBeDeleted = files
             .map(function(file){
-              if(file[0] === '/') file = file.substr(1);
-              return file.substr(self.cache._localRoot.length);
+              return file.substr(self.cache.localRoot.length);
             })
             .filter(function(file){
               return !newFiles[file];
@@ -80,7 +85,7 @@ AppLoader.prototype.check = function(newManifest){
           if(self._toBeDeleted.length > 0 || self._toBeDownloaded.length > 0){
             // Save the new Manifest
             self.newManifest = newManifest;
-            self.newManifest.root = self.cache.toInternalURL('/') + (self.newManifest.root || '');
+            self.newManifest.root = self.cache.localInternalURL;
             resolve(true);
           } else {
             resolve(false);
@@ -134,7 +139,9 @@ AppLoader.prototype.download = function(onprogress){
 AppLoader.prototype.update = function(reload){
   if(this._updateReady) {
     // update manifest
-    localStorage.setItem('manifest',JSON.stringify(this.newManifest));
+    json = JSON.stringify(this.newManifest);
+    localStorage.setItem('manifest',json);
+    localStorage.setItem('last_update_manifest',json);
     if(reload !== false) location.reload();
     return true;
   }

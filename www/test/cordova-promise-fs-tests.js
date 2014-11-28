@@ -22,9 +22,23 @@
 		assert.equal(fs.filename('bla/bla/test.txt'),'test.txt');
 	});
 
-	QUnit.test('fs.dirname("bla/bla/test.txt") = "bla/bla"',function(assert){
-		assert.equal(fs.dirname('bla/bla/test.txt'),'bla/bla');
+	QUnit.test('fs.dirname("bla/bla/test.txt") = "bla/bla/"',function(assert){
+		assert.equal(fs.dirname('bla/bla/test.txt'),'bla/bla/');
 	});
+
+	QUnit.test('fs.normalize: "/dir/dir/file.txt => dir/file.txt; /dir => dir/; ./ => ""',function(assert){
+		assert.equal(fs.normalize('./'),		'',			'"./" => ""');
+		assert.equal(fs.normalize('test'),		'test/',	'test => test/');
+		assert.equal(fs.normalize('test/'),		'test/',	'test/ => test/');
+		assert.equal(fs.normalize('/test'),		'test/',	'/test => test/');
+		assert.equal(fs.normalize('/test/'),	'test/',	'/test/ => test/');
+		assert.equal(fs.normalize('/dir.txt/'),'dir.txt/',	'/dir.txt/ => dir.txt/ (directory with a dot)');
+		assert.equal(fs.normalize('file.txt'),	'file.txt',	'file.txt => file.txt');
+		assert.equal(fs.normalize('/file.txt'),	'file.txt',	'/file.txt => file.txt');
+		assert.equal(fs.normalize('/dir/sub/sub/text.txt'),	'dir/sub/sub/text.txt',	'subdirectories with file');
+		assert.equal(fs.normalize('/dir/sub/sub/sub'),	'dir/sub/sub/sub/',	'subdirectories');
+	});
+
 
 	/*************************************/
 	//        CREATE
@@ -282,7 +296,10 @@
 
 	QUnit.asyncTest('fs.download (404 returns false - should see 3 retry attempts)',function(assert){
 		fs.download('http://data.madebymark.nl/cordova-promise-fs/does-not-exist.txt','download-error.txt',{retry:[0,0]})
-			.then(err(assert),ok(assert,false));
+			.then(err(assert),function(){
+				assert.ok(true);
+				QUnit.start();
+			});
 	});
 
 	QUnit.asyncTest('fs.download : progress when starting download',function(assert){

@@ -279,9 +279,9 @@ There are also [unit tests](http://data.madebymark.nl/cordova-app-loader/test/) 
 
 It includes unit tests for [CordovaPromiseFS](https://github.com/markmarijnissen/cordova-promise-fs) and [CordovaFileCache](https://github.com/markmarijnissen/cordova-file-cache).
 
-## Design Decisions
+## Why Cordova App Loader is Awesomene.
 
-I want CordovaAppLoader to be fast, responsive, flexible, reliable and safe. In order to do this, I've made the following decisions:
+I want CordovaAppLoader to be fast, responsive, flexible, reliable and safe. In order to do this, I've thought about everything that could destroy the app loader and fixed it.
 
 ### Loading JS/CSS dynamically using bootstrap.js
 
@@ -342,6 +342,33 @@ If the app crashes during a download, it will restart using the original manifes
 
 * When `BOOTSTRAP_OK` is not set to `true` after a timeout, the app will destroy the current manifest and revert back to the original manifest.
 
+### Avoid never-ending update loop
+
+If for some reason the downloaded files cannot be found in the cache on the next `check()`, CordovaAppLoader will indicate `true`, meaning there are still files to be downloaded.
+
+This is correct and intended behavior, as we expect all files to be in the cache when `check()` returns false.
+
+However, depending on how/when you call `check()`, this could result in a never-ending loop in which the app attempts to download files, but for some reason, the never end up in the cache.
+
+To avoid this pitfall, the following safeguard is implemented:
+
+* Whenever you call `update()`, the manifest is written to localStorage twice:
+   * `manifest`
+   * `update_attempt_manifest`
+
+* When calling `check()`, it compares the new manifest with `update_attempt_manifest`. If they are the same, it means you've attempted this before, so `check()` will return false.
+
+
+### Normalize path everywhere
+
+All filenames and paths are normalized. 
+
+* This avoids problems on android (when a path starts with a `/`, Android throws a NullPointerExpception)
+* The Manifest.json writer does not have to worry which path convention to use.
+* This avoids errors when comparing cache with old manifest with new manifest.
+
+See [CordovaPromiseFS](https://github.com/markmarijnissen/cordova-promise-fs) for more details.
+
 ### More to be considered?
 
 Let me know if you find bugs. Report an issue!
@@ -349,13 +376,19 @@ Let me know if you find bugs. Report an issue!
 ## TODO
 
 * Create a demo for **autoupdate.js**
-* Document and double-check all the urls and paths. (Especially: Do `serverUrl` and `Manifest.root` work together as expected?)
 * TODO: safety - if reverting to factory, don't attempt again to use an invalid manifest!
 
 
 ## Changelog
 
-### 0.7.0 (28/11/2014)
+
+### 0.8.0 (28/11/2014)
+
+* Normalized all paths.
+* Updated dependencies.
+* Added Safe-guard for never-ending update loop.
+
+### 0.7.0 (27/11/2014)
 
 * Fixed a nasty path issue (remove prepending / when getting files to delete to match convention of file-cache - otherwise check will always return true!)
 * Added initial [QUnit tests](http://data.madebymark.nl/cordova-app-loader/test/).
