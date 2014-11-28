@@ -375,7 +375,7 @@ Let me know if you find bugs. Report an issue!
 ## TODO
 
 * Create a demo for **autoupdate.js**
-* TODO: safety - if reverting to factory, don't attempt again to use an invalid manifest!
+* TODO: Should `check()` reject instead of resolve false when the new manifest is the same as the last updated manifest?
 
 
 ## Changelog
