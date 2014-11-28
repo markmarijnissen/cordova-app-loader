@@ -152,8 +152,7 @@ Before you start, you need to write a **manifest.json** to describe:
     "autoupdate.js",
     "app.js",
     "style.css"
-  ],
-  "root":"./", // root location to load files from.
+  ]
 }
 ```
 
