@@ -380,6 +380,10 @@ Let me know if you find bugs. Report an issue!
 
 ## Changelog
 
+### 0.10.0 (02/12/2014)
+
+* Improved loading time of scripts in bootstrap.js (parallel download instead of one-by-one). Thanks [lylepratt](https://github.com/lylepratt)!
+
 ### 0.9.0 (02/12/2014)
 
 * Added cache-buster to bootstrap.js (browser cache...)

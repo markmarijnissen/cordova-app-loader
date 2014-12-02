@@ -54,28 +54,28 @@ function loadManifest(manifest,fromLocalStorage,timeout){
       scripts = manifest.load.concat(),
       now = Date.now();
 
-  // Load Next Script
-  function loadScript(){
-    var src = scripts.shift();
-    if(!src) return;
-    // Ensure the 'src' has no '/' (it's in the root already)
-    if(src[0] === '/') src = src.substr(1);
-    src = manifest.root + src ;
-    // Load javascript
-    if(src.substr(-3) === ".js"){
-      el= document.createElement('script');
-      el.type= 'text/javascript';
-      el.src= src + '?' + now;
-      el.onload = loadScript;
-    // Load CSS
-    } else {
-      el= document.createElement('link');
-      el.rel = "stylesheet";
-      el.href = src + '?' + now;
-      el.type = "text/css";
-      setTimeout(loadScript,0);
-    }
-    head.appendChild(el);
+  // Load Scripts
+  function loadScripts(){
+    scripts.forEach(function(src) {
+      if(!src) return;
+      // Ensure the 'src' has no '/' (it's in the root already)
+      if(src[0] === '/') src = src.substr(1);
+      src = manifest.root + src ;
+      // Load javascript
+      if(src.substr(-3) === ".js"){
+        el= document.createElement('script');
+        el.type= 'text/javascript';
+        el.src= src + '?' + now;
+        el.async = false;
+      // Load CSS
+      } else {
+        el= document.createElement('link');
+        el.rel = "stylesheet";
+        el.href = src + '?' + now;
+        el.type = "text/css";
+      }
+      head.appendChild(el);
+    });
   }
 
   //---------------------------------------------------
@@ -91,9 +91,9 @@ function loadManifest(manifest,fromLocalStorage,timeout){
   // Step 5: Load Scripts
   // If we're loading Cordova files, make sure Cordova is ready first!
   if(manifest.root.substr(0,7) === 'cdvfile'){
-    document.addEventListener("deviceready", loadScript, false);
+    document.addEventListener("deviceready", loadScripts, false);
   } else {
-    loadScript();
+    loadScripts();
   }
   // Save to global scope
   window.Manifest = manifest;
