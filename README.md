@@ -380,6 +380,10 @@ Let me know if you find bugs. Report an issue!
 
 ## Changelog
 
+### 0.9.0 (02/12/2014)
+
+* Added cache-buster to bootstrap.js (browser cache...)
+* Improved Safe-guard for checking corrupt manifests
 
 ### 0.8.0 (28/11/2014)
 
