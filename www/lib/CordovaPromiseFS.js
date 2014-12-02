@@ -112,10 +112,11 @@ var CordovaPromiseFS =
 	      FileTransfer.prototype.download = function download(url,file,win,fail) {
 	        var xhr = new XMLHttpRequest();
 	        xhr.open('GET', url);
+	        xhr.responseType = "blob";
 	        xhr.onreadystatechange = function(onSuccess, onError, cb) {
 	          if (xhr.readyState == 4) {
 	            if(xhr.status === 200){
-	              write(file,xhr.responseText).then(win,fail);
+	              write(file,xhr.response).then(win,fail);
 	            } else {
 	              fail(xhr.status);
 	            }

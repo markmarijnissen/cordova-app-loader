@@ -60,18 +60,18 @@ function loadManifest(manifest,fromLocalStorage,timeout){
     if(!src) return;
     // Ensure the 'src' has no '/' (it's in the root already)
     if(src[0] === '/') src = src.substr(1);
-    src = manifest.root + src + '?' + now;
+    src = manifest.root + src ;
     // Load javascript
     if(src.substr(-3) === ".js"){
       el= document.createElement('script');
       el.type= 'text/javascript';
-      el.src= src;
+      el.src= src + '?' + now;
       el.onload = loadScript;
     // Load CSS
     } else {
       el= document.createElement('link');
       el.rel = "stylesheet";
-      el.href = src;
+      el.href = src + '?' + now;
       el.type = "text/css";
       setTimeout(loadScript,0);
     }

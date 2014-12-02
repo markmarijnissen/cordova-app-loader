@@ -58,7 +58,7 @@ var CordovaAppLoader =
 	  // initialize variables
 	  this.manifest = window.Manifest;
 	  this.newManifest = null;
-	  this._lastUpdateManifest = localStorage.getItem('last_update_manifest');
+	  this._lastUpdateFiles = localStorage.getItem('last_update_files');
 
 	  // normalize serverRoot and set remote manifest url
 	  options.serverRoot = options.serverRoot || '';
@@ -70,6 +70,7 @@ var CordovaAppLoader =
 	  this.cache = new CordovaFileCache(options);
 
 	  // private stuff
+	  this.corruptNewManifest = false;
 	  this._toBeDeleted = [];
 	  this._toBeDownloaded = [];
 	  this._updateReady = false;
@@ -96,7 +97,12 @@ var CordovaAppLoader =
 	    }
 
 	    function checkManifest(newManifest){
-	      if(JSON.stringify(newManifest) === self._lastUpdateManifest) {
+	      if(JSON.stringify(newManifest.files) === self._lastUpdateFiles) {
+	        if(JSON.stringify(newManifest.files) !== JSON.stringify(Manifest.files)){
+	          console.warn('New manifest available, but an earlier update attempt failed. Will not download.');
+	          self.corruptNewManifest = true;
+	          resolve(null);
+	        }
 	        resolve(false);
 	        return;
 	      }
@@ -164,6 +170,8 @@ var CordovaAppLoader =
 	  }
 	  // we will delete files, which will invalidate the current manifest...
 	  localStorage.removeItem('manifest');
+	  // only attempt this once - set 'last_update_files'
+	  localStorage.setItem('last_update_files',JSON.stringify(this.newManifest.files));
 	  this.manifest.files = Manifest.files = {};
 	  return self.cache.remove(self._toBeDeleted,true)
 	    .then(function(){
@@ -186,9 +194,7 @@ var CordovaAppLoader =
 	AppLoader.prototype.update = function(reload){
 	  if(this._updateReady) {
 	    // update manifest
-	    json = JSON.stringify(this.newManifest);
-	    localStorage.setItem('manifest',json);
-	    localStorage.setItem('last_update_manifest',json);
+	    localStorage.setItem('manifest',JSON.stringify(this.newManifest));
 	    if(reload !== false) location.reload();
 	    return true;
 	  }
