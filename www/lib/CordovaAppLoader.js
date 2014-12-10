@@ -398,7 +398,7 @@ var CordovaAppLoader =
 	        };
 	        var downloadUrl = url;
 	        if(self._cacheBuster) downloadUrl += "?"+Date.now();
-	        var download = fs.download(url,path,{retry:self._retry},onSingleDownloadProgress);
+	        var download = fs.download(downloadUrl,path,{retry:self._retry},onSingleDownloadProgress);
 	        download.then(onDone,onDone);
 	        self._downloading.push(download);
 	      });
