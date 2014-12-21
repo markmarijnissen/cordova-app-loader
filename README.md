@@ -383,6 +383,12 @@ Let me know if you find bugs. Report an issue!
 
 ## Changelog
 
+### 0.12.0 (21/12/2014)
+
+* Simplified copy implementation a lot.
+* Bugfix: Copy files from bundle on Android
+* Bugfix: Update dependencies
+
 ### 0.11.0 (21/12/2014)
 
 * You can now set `serverRoot` from Manifest.json (only if you set `allowServerRootFromManifest` to `true`).

@@ -2,8 +2,10 @@ var CordovaFileCache = require('cordova-file-cache');
 var CordovaPromiseFS = require('cordova-promise-fs');
 var Promise = null;
 
-var BUNDLED_FILE_SYSTEM_TYPE = 8;
-var BUNDLE_ROOT = 'www/';
+var BUNDLE_ROOT = location.href.substr(0,location.href.lastIndexOf('/')+1);
+if(/ip(hone|ad|od)/i.test(navigator.userAgent)){
+  BUNDLE_ROOT = 'cdvfile://localhost/bundle/www/';
+}
 
 function AppLoader(options){
   if(!options) throw new Error('CordovaAppLoader has no options!');
@@ -17,7 +19,6 @@ function AppLoader(options){
   this.manifest = window.Manifest;
   this.newManifest = null;
   this.bundledManifest = null;
-  this.bundledFS = null;
   this._lastUpdateFiles = localStorage.getItem('last_update_files');
 
   // normalize serverRoot and set remote manifest url
@@ -48,6 +49,11 @@ AppLoader.prototype._createFilemap = function(files){
   return result;
 };
 
+AppLoader.prototype.copyFromBundle = function(file){
+  var url = BUNDLE_ROOT + file;
+  return this.cache._fs.download(url,this.cache.localRoot + file);
+};
+
 AppLoader.prototype.getBundledManifest = function(){
   var self = this;
   var bootstrapScript = document.querySelector('script[manifest]');
@@ -66,28 +72,6 @@ AppLoader.prototype.getBundledManifest = function(){
   });
 };
 
-AppLoader.prototype.getBundledFS = function(){
-  if(!self.bundledFS){
-    self.bundledFS = CordovaPromiseFS({ fileSystem: BUNDLED_FILE_SYSTEM_TYPE });
-  }
-  return self.bundledFS;
-};
-
-AppLoader.prototype.copyFromBundle = function(file){
-  var self = this;
-  return new Promise(function(resolve,reject){
-    var bundledFS = self.getBundledFS();
-    var cacheFS = self.cache._fs;
-    var destDirPath = cacheFS.dirname(self.cache.localRoot + file);
-    var srcFilePath = BUNDLE_ROOT + file;
-    var srcFilename = cacheFS.filename(file);
-    return Promise.all([bundledFS.file(srcFilePath),cacheFS.ensure(destDirPath)])
-      .then(function(val){
-        var srcFile = val[0], destDir = val[1];
-        srcFile.copyTo(destDir,srcFilename,resolve,reject);
-      },reject);
-  });
-};
 
 AppLoader.prototype.check = function(newManifest){
   var self = this, manifest = this.manifest;
@@ -100,7 +84,6 @@ AppLoader.prototype.check = function(newManifest){
     if(typeof newManifest === "object") {
       resolve(newManifest);
     } else {
-      console.log('checking new manifest:',self.newManifestUrl);
       pegasus(self.newManifestUrl).then(resolve,reject);
       setTimeout(function(){reject(new Error('new manifest timeout'));},self._checkTimeout);
     }
@@ -212,7 +195,9 @@ AppLoader.prototype.download = function(onprogress){
   this.manifest.files = Manifest.files = {};
   return self.cache.remove(self._toBeDeleted,true)
     .then(function(){
-      return Promise.all(self._toBeCopied.map(self.copyFromBundle.bind(self)));
+      return Promise.all(self._toBeCopied.map(function(file){
+        return self.cache._fs.download(BUNDLE_ROOT + file,self.cache.localRoot + file);
+      }));
     })
     .then(function(){
       if(self.allowServerRootFromManifest && self.newManifest.serverRoot){
