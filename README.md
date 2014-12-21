@@ -303,6 +303,10 @@ Dynamically inserting CSS and JS allows you for almost the same freedom in updat
 * When executing `loader.download()` for the second time, old downloads are aborted.
 * "onprogress" event is called explicitly on every download. 
 
+### Avoid downloading if you can copy files
+
+When updating, copy files that are already bundled with the app. (Of course, only if the file version has not changed)
+
 ### Responsive app: Avoid never-resolving promises
 
 `check` and `download` return a promise. These promises should always resolve - i.e. don't wait forever for a "deviceready" or for a "manifest.json" AJAX call to return.
@@ -368,17 +372,21 @@ All filenames and paths are normalized.
 
 See [CordovaPromiseFS](https://github.com/markmarijnissen/cordova-promise-fs) for more details.
 
+
 ### More to be considered?
 
 Let me know if you find bugs. Report an issue!
 
-## TODO
+## TODO for VERSION 1.0.0
 
-* Create a demo for **autoupdate.js**
-* TODO: Should `check()` reject instead of resolve false when the new manifest is the same as the last updated manifest?
-
+* Write automated tests
 
 ## Changelog
+
+### 0.11.0 (21/12/2014)
+
+* You can now set `serverRoot` from Manifest.json (only if you set `allowServerRootFromManifest` to `true`).
+* AppLoader will copy files from bundle when possible.
 
 ### 0.10.0 (02/12/2014)
 

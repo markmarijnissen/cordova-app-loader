@@ -45,8 +45,11 @@ for(var key in manifest.files) {
     console.error('Could not hash file.',e);
   }
 }
-
-manifest.version = crypto.createHash('sha1').update(versionChecksum).digest('hex');
+if(typeof manifest.version === 'number'){
+  manifest.version++;
+} else {
+  manifest.version = crypto.createHash('sha1').update(versionChecksum).digest('hex');
+}
 
 try {
   fs.writeFileSync(
