@@ -49,7 +49,8 @@ var CordovaAppLoader =
 	var CordovaPromiseFS = __webpack_require__(1);
 	var Promise = null;
 
-	var BUNDLE_ROOT = location.href.substr(0,location.href.lastIndexOf('/')+1);
+	var BUNDLE_ROOT = location.href.replace(location.hash,'');
+	var BUNDLE_ROOT = BUNDLE_ROOT.substr(0,BUNDLE_ROOT.lastIndexOf('/')+1);
 	if(/ip(hone|ad|od)/i.test(navigator.userAgent)){
 	  BUNDLE_ROOT = 'cdvfile://localhost/bundle/www/';
 	}
@@ -378,6 +379,7 @@ var CordovaAppLoader =
 	        return xhr;
 	      };
 	      window.ProgressEvent = function ProgressEvent(){};
+	      window.FileEntry = function FileEntry(){};
 	    } else {
 	      window.requestFileSystem = function(x,y,z,fail){
 	        fail(new Error('requestFileSystem not supported!'));
@@ -435,7 +437,7 @@ var CordovaAppLoader =
 	    /* get file file */
 	  function file(path,options){
 	    return new Promise(function(resolve,reject){
-	      if(path instanceof FileEntry) {
+	      if(typeof path === 'object') {
 	        return resolve(path);
 	      }
 	      path = normalize(path);

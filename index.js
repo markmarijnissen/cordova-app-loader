@@ -2,7 +2,8 @@ var CordovaFileCache = require('cordova-file-cache');
 var CordovaPromiseFS = require('cordova-promise-fs');
 var Promise = null;
 
-var BUNDLE_ROOT = location.href.substr(0,location.href.lastIndexOf('/')+1);
+var BUNDLE_ROOT = location.href.replace(location.hash,'');
+var BUNDLE_ROOT = BUNDLE_ROOT.substr(0,BUNDLE_ROOT.lastIndexOf('/')+1);
 if(/ip(hone|ad|od)/i.test(navigator.userAgent)){
   BUNDLE_ROOT = 'cdvfile://localhost/bundle/www/';
 }

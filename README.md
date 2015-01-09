@@ -383,6 +383,10 @@ Let me know if you find bugs. Report an issue!
 
 ## Changelog
 
+### 0.13.0 (9/1/2014)
+
+* Fix [issue 15](https://github.com/markmarijnissen/cordova-app-loader/issues/15): Copied files contain index.html on Android when location.href contains `#/` while updating.
+
 ### 0.12.0 (21/12/2014)
 
 * Simplified copy implementation a lot.

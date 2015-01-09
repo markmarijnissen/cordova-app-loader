@@ -127,6 +127,7 @@ var CordovaPromiseFS =
 	        return xhr;
 	      };
 	      window.ProgressEvent = function ProgressEvent(){};
+	      window.FileEntry = function FileEntry(){};
 	    } else {
 	      window.requestFileSystem = function(x,y,z,fail){
 	        fail(new Error('requestFileSystem not supported!'));
@@ -184,7 +185,7 @@ var CordovaPromiseFS =
 	    /* get file file */
 	  function file(path,options){
 	    return new Promise(function(resolve,reject){
-	      if(path instanceof FileEntry) {
+	      if(typeof path === 'object') {
 	        return resolve(path);
 	      }
 	      path = normalize(path);
