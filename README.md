@@ -381,7 +381,32 @@ Let me know if you find bugs. Report an issue!
 
 * Write automated tests
 
+## FAQ
+
+#### What happens if update the App in the App Store?
+
+The version on your **remote server** is the **single source of truth**.
+
+Here is a flow chart:
+
+* Did the app detect an **earlier update the remote server**?
+
+    * Yes - Your App downloaded the update and is now running from the FileCache.
+          * Did the app detect the **remote update** before the **app store update**?
+               * Yes - Your app will download files from remote - the app store update will only act as fallback.
+               * No - Your app will run the outdated version until it detects the **remote update**. When updating, it will copy files from bundle (instead of downloading from remote).
+
+    * No - Your App never detected an update and is uses the bundled files.
+          * Did the app detect the **remote update** before the **app store update**?
+               * Yes - Your app will download files from remote - the app store update will only act as fallback.
+               * No - Your app will use the bundled files, as they are up to date with the remote.
+
+
 ## Changelog
+
+### 0.14.0 (22/1/2014)
+
+* Fix: Copy files from bundle does not work if your app is not directly in `/www/`. For example when your entry point is `/www/app/index.html`.
 
 ### 0.13.0 (9/1/2014)
 

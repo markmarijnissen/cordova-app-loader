@@ -50,9 +50,11 @@ var CordovaAppLoader =
 	var Promise = null;
 
 	var BUNDLE_ROOT = location.href.replace(location.hash,'');
-	var BUNDLE_ROOT = BUNDLE_ROOT.substr(0,BUNDLE_ROOT.lastIndexOf('/')+1);
+	BUNDLE_ROOT = BUNDLE_ROOT.substr(0,BUNDLE_ROOT.lastIndexOf('/')+1);
 	if(/ip(hone|ad|od)/i.test(navigator.userAgent)){
-	  BUNDLE_ROOT = 'cdvfile://localhost/bundle/www/';
+	  BUNDLE_ROOT = location.pathname.substr(location.pathname.indexOf('/www/'));
+	  BUNDLE_ROOT = BUNDLE_ROOT.substr(0,BUNDLE_ROOT.lastIndexOf('/')+1);
+	  BUNDLE_ROOT = 'cdvfile://localhost/bundle' + BUNDLE_ROOT;
 	}
 
 	function AppLoader(options){
