@@ -221,7 +221,9 @@ var CordovaAppLoader =
 	        } else {
 	          resolve(false);
 	        }
-	      }); // end of .then
+	      }, function(reason) {
+            reject(reason);
+          }); // end of .then
 	  }); // end of new Promise
 	};
 
