@@ -174,6 +174,8 @@ AppLoader.prototype.check = function(newManifest){
         } else {
           resolve(false);
         }
+      }, function(err){
+        reject(err);
       }); // end of .then
   }); // end of new Promise
 };
