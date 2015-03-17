@@ -404,7 +404,11 @@ Here is a flow chart:
 
 ## Changelog
 
-### 0.15.0 (17/03/2013)
+### 0.16.0 (17/03/2015)
+
+* Fix: Endless Update detection bug. (issue #18)
+
+### 0.15.0 (17/03/2015)
 
 * Fix: Missing reject (issue #26) -- thanks very much @pheinicke!
 * Fix: Promise.resolve is not in A+ spec. (issue #23).

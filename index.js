@@ -97,15 +97,24 @@ AppLoader.prototype.check = function(newManifest){
       .then(function(values){
         var newManifest = values[0];
         var bundledManifest = values[1];
+        var newFiles = JSON.stringify(newManifest.files);
 
         // Prevent end-less update loop, check if new manifest
         // has been downloaded before (but failes)
-        if(JSON.stringify(newManifest.files) === self._lastUpdateFiles) {
-          if(JSON.stringify(newManifest.files) !== JSON.stringify(Manifest.files)){
+        
+        // Check if the newFiles match the previous files (last_update_files)
+        if(newFiles === self._lastUpdateFiles) {
+          // YES! So we're doing the same update again!
+
+          // Check if our current Manifest has indeed the "last_update_files"
+          var currentFiles = JSON.stringify(Manifest.files);
+          if(self._lastUpdateFiles !== currentFiles){
+            // No! So we've updated, yet they don't appear in our manifest. This means:
             console.warn('New manifest available, but an earlier update attempt failed. Will not download.');
             self.corruptNewManifest = true;
             resolve(null);
           }
+          // Yes, we've updated and we've succeeded.
           resolve(false);
           return;
         }
