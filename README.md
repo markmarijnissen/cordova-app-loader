@@ -407,6 +407,7 @@ Here is a flow chart:
 ### 0.15.0 (17/03/2013)
 
 * Fix: Missing reject (issue #26) -- thanks very much @pheinicke!
+* Fix: Promise.resolve is not in A+ spec. (issue #23).
 * Updated cordova-file-cache dependency.
 
 ### 0.14.0 (22/1/2014)
