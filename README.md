@@ -409,6 +409,7 @@ Here is a flow chart:
 * Fix: Missing reject (issue #26) -- thanks very much @pheinicke!
 * Fix: Promise.resolve is not in A+ spec. (issue #23).
 * Updated cordova-file-cache dependency.
+* Fix: Improved Cordova detection (wait for deviceready) in **bootstrap.js** (issue #17)
 
 ### 0.14.0 (22/1/2014)
 

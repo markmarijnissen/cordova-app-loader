@@ -238,7 +238,7 @@ var CordovaAppLoader =
 	AppLoader.prototype.download = function(onprogress){
 	  var self = this;
 	  if(!self.canDownload()) {
-	    return Promise.resolve(null);
+	    return new Promise(function(resolve){ resolve(null); });
 	  }
 	  // we will delete files, which will invalidate the current manifest...
 	  localStorage.removeItem('manifest');

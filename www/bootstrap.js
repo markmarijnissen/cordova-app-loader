@@ -90,7 +90,7 @@ function loadManifest(manifest,fromLocalStorage,timeout){
 
   // Step 5: Load Scripts
   // If we're loading Cordova files, make sure Cordova is ready first!
-  if(manifest.root.substr(0,7) === 'cdvfile'){
+  if(typeof window.cordova !== 'undefined'){
     document.addEventListener("deviceready", loadScripts, false);
   } else {
     loadScripts();
