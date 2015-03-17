@@ -1,41 +1,41 @@
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
-/******/
+
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
-/******/
+
 /******/ 		// Check if module is in cache
 /******/ 		if(installedModules[moduleId])
 /******/ 			return installedModules[moduleId].exports;
-/******/
+
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			exports: {},
 /******/ 			id: moduleId,
 /******/ 			loaded: false
 /******/ 		};
-/******/
+
 /******/ 		// Execute the module function
 /******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
+
 /******/ 		// Flag the module as loaded
 /******/ 		module.loaded = true;
-/******/
+
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/
-/******/
+
+
 /******/ 	// expose the modules object (__webpack_modules__)
 /******/ 	__webpack_require__.m = modules;
-/******/
+
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
-/******/
+
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
-/******/
+
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
 /******/ })
@@ -230,6 +230,8 @@
 	        } else {
 	          resolve(false);
 	        }
+	      }, function(err){
+	        reject(err);
 	      }); // end of .then
 	  }); // end of new Promise
 	};
@@ -548,6 +550,10 @@
 	 */
 	FileCache.prototype.toPath = function toPath(url){
 	  if(this._mirrorMode) {
+	    var query = url.indexOf('?');
+	    if(query > -1){
+	      url = url.substr(0,query);
+	    }
 	    url = url = this._fs.normalize(url || '');
 	    len = this.serverRoot.length;
 	    if(url.substr(0,len) !== this.serverRoot) {
@@ -609,7 +615,7 @@
 	module.exports = function(options){
 	  /* Promise implementation */
 	  var Promise = options.Promise || window.Promise;
-	  if(!Promise) { throw new Error("No Promise library given in options.Promise"); }
+	  if(typeof Promise === 'undefined') { throw new Error("No Promise library given in options.Promise"); }
 
 	  /* default options */
 	  this.options = options = options || {};
@@ -695,7 +701,7 @@
 	            resolve(fs.root);
 	          } else {
 	            folders = folders.split('/').filter(function(folder) {
-	              return folder && folder.length > 0 && folder[0] !== '.';
+	              return folder && folder.length > 0 && folder !== '.' && folder !== '..';
 	            });
 	            __createDir(fs.root,folders,resolve,reject);
 	          }
@@ -806,7 +812,7 @@
 	    /* synchronous helper to get internal URL. */
 	    toInternalURLSync = function(path){
 	      path = normalize(path);
-	      return 'cdvfile://localhost/'+(options.persistent? 'persistent/':'temporary/') + path;
+	      return path.indexOf('://') < 0? 'cdvfile://localhost/'+(options.persistent? 'persistent/':'temporary/') + path: path;
 	    };
 
 	    toInternalURL = function(path) {
@@ -966,14 +972,16 @@
 	      onprogress = transferOptions;
 	      transferOptions = {};
 	    }
-	    serverUrl = encodeURI(serverUrl);
-	    if(isCordova) localPath = toInternalURLSync(localPath);
+	    if(isCordova && localPath.indexOf('://') < 0) localPath = toInternalURLSync(localPath);
 
 	    transferOptions = transferOptions || {};
 	    if(!transferOptions.retry || !transferOptions.retry.length) {
 	      transferOptions.retry = options.retry;
 	    }
 	    transferOptions.retry = transferOptions.retry.concat();
+	    if(!transferOptions.file && !isDownload){
+	      transferOptions.fileName = filename(localPath);
+	    }
 
 	    var ft = new FileTransfer();
 	    onprogress = onprogress || transferOptions.onprogress;
@@ -1048,11 +1056,12 @@
 	  };
 	};
 
+
 /***/ },
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**@license MIT-promiscuous-©Ruben Verborgh*/
+	/* WEBPACK VAR INJECTION */(function(setImmediate) {/**@license MIT-promiscuous-©Ruben Verborgh*/
 	(function (func, obj) {
 	  // Type checking utility function
 	  function is(type, item) { return (typeof item)[0] == type; }
@@ -1180,6 +1189,7 @@
 	  };
 	})('f', 'o');
 
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6).setImmediate))
 
 /***/ },
 /* 5 */
@@ -1252,5 +1262,151 @@
 
 	module.exports = murmurhash3_32_gc;
 
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(7).nextTick;
+	var apply = Function.prototype.apply;
+	var slice = Array.prototype.slice;
+	var immediateIds = {};
+	var nextImmediateId = 0;
+
+	// DOM APIs, for completeness
+
+	exports.setTimeout = function() {
+	  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
+	};
+	exports.setInterval = function() {
+	  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
+	};
+	exports.clearTimeout =
+	exports.clearInterval = function(timeout) { timeout.close(); };
+
+	function Timeout(id, clearFn) {
+	  this._id = id;
+	  this._clearFn = clearFn;
+	}
+	Timeout.prototype.unref = Timeout.prototype.ref = function() {};
+	Timeout.prototype.close = function() {
+	  this._clearFn.call(window, this._id);
+	};
+
+	// Does not start the time, just sets up the members needed.
+	exports.enroll = function(item, msecs) {
+	  clearTimeout(item._idleTimeoutId);
+	  item._idleTimeout = msecs;
+	};
+
+	exports.unenroll = function(item) {
+	  clearTimeout(item._idleTimeoutId);
+	  item._idleTimeout = -1;
+	};
+
+	exports._unrefActive = exports.active = function(item) {
+	  clearTimeout(item._idleTimeoutId);
+
+	  var msecs = item._idleTimeout;
+	  if (msecs >= 0) {
+	    item._idleTimeoutId = setTimeout(function onTimeout() {
+	      if (item._onTimeout)
+	        item._onTimeout();
+	    }, msecs);
+	  }
+	};
+
+	// That's not how node.js implements it but the exposed api is the same.
+	exports.setImmediate = typeof setImmediate === "function" ? setImmediate : function(fn) {
+	  var id = nextImmediateId++;
+	  var args = arguments.length < 2 ? false : slice.call(arguments, 1);
+
+	  immediateIds[id] = true;
+
+	  nextTick(function onNextTick() {
+	    if (immediateIds[id]) {
+	      // fn.call() is faster so we optimize for the common use-case
+	      // @see http://jsperf.com/call-apply-segu
+	      if (args) {
+	        fn.apply(null, args);
+	      } else {
+	        fn.call(null);
+	      }
+	      // Prevent ids from leaking
+	      exports.clearImmediate(id);
+	    }
+	  });
+
+	  return id;
+	};
+
+	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
+	  delete immediateIds[id];
+	};
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6).setImmediate, __webpack_require__(6).clearImmediate))
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// shim for using process in browser
+
+	var process = module.exports = {};
+	var queue = [];
+	var draining = false;
+
+	function drainQueue() {
+	    if (draining) {
+	        return;
+	    }
+	    draining = true;
+	    var currentQueue;
+	    var len = queue.length;
+	    while(len) {
+	        currentQueue = queue;
+	        queue = [];
+	        var i = -1;
+	        while (++i < len) {
+	            currentQueue[i]();
+	        }
+	        len = queue.length;
+	    }
+	    draining = false;
+	}
+	process.nextTick = function (fun) {
+	    queue.push(fun);
+	    if (!draining) {
+	        setTimeout(drainQueue, 0);
+	    }
+	};
+
+	process.title = 'browser';
+	process.browser = true;
+	process.env = {};
+	process.argv = [];
+	process.version = ''; // empty string to avoid regexp issues
+	process.versions = {};
+
+	function noop() {}
+
+	process.on = noop;
+	process.addListener = noop;
+	process.once = noop;
+	process.off = noop;
+	process.removeListener = noop;
+	process.removeAllListeners = noop;
+	process.emit = noop;
+
+	process.binding = function (name) {
+	    throw new Error('process.binding is not supported');
+	};
+
+	// TODO(shtylman)
+	process.cwd = function () { return '/' };
+	process.chdir = function (dir) {
+	    throw new Error('process.chdir is not supported');
+	};
+	process.umask = function() { return 0; };
+
+
 /***/ }
-/******/ ])
+/******/ ]);
