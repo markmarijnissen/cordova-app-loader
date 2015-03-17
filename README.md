@@ -404,6 +404,11 @@ Here is a flow chart:
 
 ## Changelog
 
+### 0.15.0 (17/03/2013)
+
+* Fix: Missing reject (issue #26) -- thanks very much @pheinicke!
+* Updated cordova-file-cache dependency.
+
 ### 0.14.0 (22/1/2014)
 
 * Fix: Copy files from bundle does not work if your app is not directly in `/www/`. For example when your entry point is `/www/app/index.html`.
