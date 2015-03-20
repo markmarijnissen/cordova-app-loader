@@ -404,6 +404,10 @@ Here is a flow chart:
 
 ## Changelog
 
+### 0.17.0 (20/03/2015)
+
+* Fix: Another fix for update detection bug. (issue #18)
+
 ### 0.16.0 (17/03/2015)
 
 * Fix: Endless Update detection bug. (issue #18)
