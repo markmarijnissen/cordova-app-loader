@@ -66,6 +66,17 @@
 	  BUNDLE_ROOT = 'cdvfile://localhost/bundle' + BUNDLE_ROOT;
 	}
 
+	function hash(files){
+	  var keys = Object.keys(files);
+	  keys.sort();
+	  var str = '';
+	  keys.forEach(function(key){
+	    if(files[key] && files[key].version);
+	      str += '@' + files[key].version;
+	  });
+	  return CordovaFileCache.hash(str) + '';
+	}
+
 	function AppLoader(options){
 	  if(!options) throw new Error('CordovaAppLoader has no options!');
 	  if(!options.fs) throw new Error('CordovaAppLoader has no "fs" option (cordova-promise-fs)');
@@ -153,7 +164,7 @@
 	      .then(function(values){
 	        var newManifest = values[0];
 	        var bundledManifest = values[1];
-	        var newFiles = JSON.stringify(newManifest.files);
+	        var newFiles = hash(newManifest.files);
 
 	        // Prevent end-less update loop, check if new manifest
 	        // has been downloaded before (but failes)
@@ -163,7 +174,7 @@
 	          // YES! So we're doing the same update again!
 
 	          // Check if our current Manifest has indeed the "last_update_files"
-	          var currentFiles = JSON.stringify(Manifest.files);
+	          var currentFiles = hash(Manifest.files);
 	          if(self._lastUpdateFiles !== currentFiles){
 	            // No! So we've updated, yet they don't appear in our manifest. This means:
 	            console.warn('New manifest available, but an earlier update attempt failed. Will not download.');
@@ -261,7 +272,7 @@
 	  // we will delete files, which will invalidate the current manifest...
 	  localStorage.removeItem('manifest');
 	  // only attempt this once - set 'last_update_files'
-	  localStorage.setItem('last_update_files',JSON.stringify(this.newManifest.files));
+	  localStorage.setItem('last_update_files',hash(this.newManifest.files));
 	  this.manifest.files = Manifest.files = {};
 	  return self.cache.remove(self._toBeDeleted,true)
 	    .then(function(){
@@ -357,6 +368,8 @@
 	    return self.list();
 	  });
 	}
+
+	FileCache.hash = hash;
 
 	/**
 	 * Helper to cache all 'internalURL' and 'URL' for quick synchronous access
