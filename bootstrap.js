@@ -44,6 +44,18 @@ window.pegasus = function pegasus(a, xhr) {
 //------------------------------------------------------------------
 // Step 2: After fetching manifest (localStorage or XHR), load it
 function loadManifest(manifest,fromLocalStorage,timeout){
+  // Safety timeout. If BOOTSTRAP_OK is not defined,
+  // it will delete the 'localStorage' version and revert to factory settings.
+  if(fromLocalStorage){
+    setTimeout(function(){
+      if(!window.BOOTSTRAP_OK){
+        console.warn('BOOTSTRAP_OK !== true; Resetting to original manifest.json...');
+        localStorage.removeItem('manifest');
+        location.reload();
+      }
+    },timeout);
+  }
+
   if(!manifest.load) {
     console.error('Manifest has nothing to load (manifest.load is empty).',manifest);
     return;
@@ -97,18 +109,6 @@ function loadManifest(manifest,fromLocalStorage,timeout){
   }
   // Save to global scope
   window.Manifest = manifest;
-
-  // Safety timeout. If BOOTSTRAP_OK is not defined,
-  // it will delete the 'localStorage' version and revert to factory settings.
-  if(fromLocalStorage){
-    setTimeout(function(){
-      if(!window.BOOTSTRAP_OK){
-        console.warn('BOOTSTRAP_OK !== true; Resetting to original manifest.json...');
-        localStorage.removeItem('manifest');
-        location.reload();
-      }
-    },timeout);
-  }
 }
 //---------------------------------------------------------------------
 window.Manifest = {};
