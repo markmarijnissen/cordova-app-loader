@@ -1,5 +1,5 @@
 {
-  "name": "cordova-app-loadaer",
+  "name": "cordova-app-loader",
   "main": "dist/CordovaAppLoader.js",
   "version": "0.17.0",
   "homepage": "https://github.com/markmarijnissen/cordova-file-cache",
