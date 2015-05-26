@@ -166,7 +166,7 @@ node node_modules/cordova-app-loader/bin/update-manifest [root-directory] [manif
 
 It will update the version of only changed files (with a hash of the content).
 
-There is also [a Gruntfile](https://gist.github.com/lylepratt/d8bf84b3b7d6932e3549) available.
+There is also [a Gruntfile](https://gist.github.com/arieljake/19447838b29a3e2da92b) available.
 
 ## Usage / API
 
