@@ -244,7 +244,7 @@ loader.download(onprogress)
 
 **Note:** When downloading, invalid files are deleted first. This invalidates the current manifest. Therefore, the current manifest is removed from localStorage. The app is reverted to "factory settings" (the manifest.json that comes bundled with the app).
 
-### Step 5: Apply updates (reload page to bootstrap new files).
+### Step 5: Apply updates (reload page to bootstrap new files)
 
 This writes the new manifest to localStorage and reloads the page to bootstrap the updated app.
 
