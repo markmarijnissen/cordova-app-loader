@@ -14,7 +14,7 @@ A little later...
    3. `update()` your app!
 
 
-## Demo Time!
+## Demo time!
 
 Check out [Cordova App Loader](http://data.madebymark.nl/cordova-app-loader/index.html) in Chrome for a demo! (**Chrome only!**)
 
@@ -278,7 +278,7 @@ There are also [unit tests](http://data.madebymark.nl/cordova-app-loader/test/) 
 
 It includes unit tests for [CordovaPromiseFS](https://github.com/markmarijnissen/cordova-promise-fs) and [CordovaFileCache](https://github.com/markmarijnissen/cordova-file-cache).
 
-## Why "Cordova App Loader" is Awesome!
+## Why "Cordova App Loader" is awesome!
 
 I want CordovaAppLoader to be fast, responsive, flexible, reliable and safe. In order to do this, I've thought about everything that could destroy the app loader and fixed it.
 
