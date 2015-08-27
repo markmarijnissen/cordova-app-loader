@@ -14,7 +14,7 @@ A little later...
    3. `update()` your app!
 
 
-## Demo Time!
+## Demo time!
 
 Check out [Cordova App Loader](http://data.madebymark.nl/cordova-app-loader/index.html) in Chrome for a demo! (**Chrome only!**)
 
@@ -40,7 +40,7 @@ Automatic updates have a few downsides:
 * Downloading files in the background can slow down performance (sluggish UI).
 * Automatically updating can interrupt the user.
 
-### Step by step instruction:
+### Step by step instructions:
 
 1. Setup Cordova (see below)
 1. Download to your `www` directory:
@@ -68,7 +68,7 @@ Now you can remote update your app:
 
 ## Installation
 
-### Setup Cordova
+### Set up Cordova
 
 ```bash
   cordova platform add ios@3.7.0
@@ -78,7 +78,7 @@ Now you can remote update your app:
 
 **IMPORTANT:** For iOS, use Cordova 3.7.0 or higher (due to a [bug](https://github.com/AppGyver/steroids/issues/534) that affects requestFileSystem).
 
-###Download and include bootstrap.js
+### Download and include bootstrap.js
 
 You need **bootstrap.js** ([github](https://github.com/markmarijnissen/cordova-app-loader/), [file](https://raw.githubusercontent.com/markmarijnissen/cordova-app-loader/master/bootstrap.js)) to read the **manifest.json** to launch your app. 
 
@@ -106,7 +106,7 @@ If you want to use your own Promise library, you have to load every module indiv
   bower install bluebird # or another library that follows the Promise/A+ spec.
 ```
 
-**Option 4: Use NPM  to fetch CommonJS modules:**
+**Option 4: Use NPM to fetch CommonJS modules:**
 
 ```bash
   npm install cordova-app-loader 
@@ -114,7 +114,7 @@ If you want to use your own Promise library, you have to load every module indiv
   npm install bluebird  # or another library that follows the Promise/A+ spec.
 ```
 
-## The Manifest
+## The manifest
 
 Before you start, you need to write a **manifest.json** to describe:
 
@@ -196,7 +196,7 @@ If your app is updated and `window.BOOTSTRAP_OK` is **not** true after `timeout`
 
 You should always bundle a manifest.json (+ files) in your app to make sure your app has a "factory default" to revert back to. (And to make sure your app works offline).
 
-### Step 2: Intialize CordovaAppLoader
+### Step 2: Intialize CordovaAppLoader.
 
 ```javascript
 // When using NPM, require these first.
@@ -235,7 +235,7 @@ loader.check({ files: { ... } }).then( ... )
 
 **Implementation Note:** Only file versions are compared! If you, for example, update `manifest.load` then the promise will return `false`!
 
-### Step 4: Download update
+### Step 4: Download the updates
 
 ```javascript
 loader.download(onprogress)
@@ -244,7 +244,7 @@ loader.download(onprogress)
 
 **Note:** When downloading, invalid files are deleted first. This invalidates the current manifest. Therefore, the current manifest is removed from localStorage. The app is reverted to "factory settings" (the manifest.json that comes bundled with the app).
 
-### Step 5: Apply update (reload page to bootstrap new files)
+### Step 5: Apply updates (reload page to bootstrap new files)
 
 This writes the new manifest to localStorage and reloads the page to bootstrap the updated app.
 
@@ -278,7 +278,7 @@ There are also [unit tests](http://data.madebymark.nl/cordova-app-loader/test/) 
 
 It includes unit tests for [CordovaPromiseFS](https://github.com/markmarijnissen/cordova-promise-fs) and [CordovaFileCache](https://github.com/markmarijnissen/cordova-file-cache).
 
-## Why Cordova App Loader is Awesomene.
+## Why "Cordova App Loader" is awesome!
 
 I want CordovaAppLoader to be fast, responsive, flexible, reliable and safe. In order to do this, I've thought about everything that could destroy the app loader and fixed it.
 
@@ -307,11 +307,11 @@ Dynamically inserting CSS and JS allows you for almost the same freedom in updat
 
 When updating, copy files that are already bundled with the app. (Of course, only if the file version has not changed)
 
-### Responsive app: Avoid never-resolving promises
+### Responsive app: avoid never-resolving promises.
 
 `check` and `download` return a promise. These promises should always resolve - i.e. don't wait forever for a "deviceready" or for a "manifest.json" AJAX call to return.
 
-I am assuming the following promises resolve or reject sometime:
+I am assuming the following promises resolve or reject:
 
 * requestFileSystem
 * CordovaPromiseFS methods:
@@ -329,7 +329,7 @@ As you see, most methods rely on the succes/error callbacks of native/Cordova me
 
 Only for `deviceready` and the XHR-request I've added timeouts to ensure a timely response.
 
-### Offline - when you loose connection.
+### Offline - what happens when you lose connection
 
 When using `check`: The XHR will timeout.
 
@@ -345,7 +345,7 @@ If the app crashes during a download, it will restart using the original manifes
 
 * When `BOOTSTRAP_OK` is not set to `true` after a timeout, the app will destroy the current manifest and revert back to the original manifest.
 
-### Avoid never-ending update loop
+### Avoiding a never-ending update loop
 
 If for some reason the downloaded files cannot be found in the cache on the next `check()`, CordovaAppLoader will indicate `true`, meaning there are still files to be downloaded.
 
@@ -362,7 +362,7 @@ To avoid this pitfall, the following safeguard is implemented:
 * When calling `check()`, it compares the new manifest with `update_attempt_manifest`. If they are the same, it means you've attempted this before, so `check()` will return false.
 
 
-### Normalize path everywhere
+### Normalize paths everywhere
 
 All filenames and paths are normalized. 
 
