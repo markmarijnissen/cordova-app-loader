@@ -215,7 +215,7 @@ var loader = new CordovaAppLoader({
   fs: fs,
   serverRoot: 'http://data.madebymark.nl/cordova-app-loader/',
   localRoot: 'app',
-  cacheBuster: true // make sure we're not downloading cached files.
+  cacheBuster: true, // make sure we're not downloading cached files.
   checkTimeout: 10000 // timeout for the "check" function - when you loose internet connection
 });
 ```
