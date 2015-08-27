@@ -172,8 +172,11 @@ var CordovaAppLoader =
 	            self.corruptNewManifest = true;
 	            resolve(null);
 	          }
-	          // Yes, we've updated and we've succeeded.
-	          resolve(false);
+		      else
+		      {
+	            // Yes, we've updated and we've succeeded.
+	            resolve(false);
+              }
 	          return;
 	        }
 
