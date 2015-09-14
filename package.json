@@ -13,7 +13,7 @@
     "prepublish": "npm run copy-tests && npm run autoupdate && npm run bootstrap && npm run cordova-promise-fs && npm run cordova-app-loader && npm run copy-to-dist && npm run bundle && npm run minify-dist",
     "copy-to-dist": "cp www/lib/CordovaAppLoader.js dist/ && cp www/lib/CordovaPromiseFS.js dist/ && cp www/bootstrap.js dist/ && cp www/autoupdate.js dist/",
     "minify-dist": " uglifyjs -c -m --screw-ie8 dist/bootstrap.js -o dist/bootstrap.min.js && uglifyjs -c -m --screw-ie8 dist/autoupdate.js -o dist/autoupdate.min.js && uglifyjs -c -m --screw-ie8 dist/CordovaPromiseFS.js -o dist/CordovaPromiseFS.min.js && uglifyjs -c -m --screw-ie8 dist/CordovaAppLoader.js -o dist/CordovaAppLoader.min.js && uglifyjs -c -m --screw-ie8 dist/cordova-app-loader-complete.js > dist/cordova-app-loader-complete.min.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "keywords": [
     "cordova",
@@ -27,5 +27,8 @@
   "dependencies": {
     "cordova-file-cache": "^0.12.0",
     "cordova-promise-fs": "^0.12.0"
+  },
+  "devDependencies": {
+    "mocha": "^2.3.2"
   }
 }
