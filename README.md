@@ -406,6 +406,10 @@ Here is a flow chart:
 
 ## Changelog
 
+### 0.18.0 (23/01/2016)
+
+* Version bump for Cordova File Cache + Pull Requests
+
 ### 0.17.0 (20/03/2015)
 
 * Fix: Another fix for update detection bug. (issue #18)

@@ -1,6 +1,6 @@
 {
   "name": "cordova-app-loader",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "Cordova App Loader - remote update your cordova app",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "copy-tests": "cp pegasus.js www/test/pegasus.js && cp node_modules/cordova-promise-fs/test/tests.js www/test/cordova-promise-fs-tests.js && cp node_modules/cordova-file-cache/test/tests.js www/test/cordova-file-cache-tests.js",
     "autoupdate": "cp autoupdate.js www/autoupdate.js",
     "bundle": " webpack bundle.js dist/cordova-app-loader-complete.js && cp dist/cordova-app-loader-complete.js www/lib/cordova-app-loader-complete.js",
-    "prepublish": "npm run copy-tests && npm run autoupdate && npm run bootstrap && npm run cordova-promise-fs && npm run cordova-app-loader && npm run copy-to-dist && npm run bundle && npm run minify-dist",
+    "prepublish": "npm run copy-tests && npm run autoupdate && npm run bootstrap && npm run cordova-app-loader && npm run copy-to-dist && npm run bundle && npm run minify-dist",
     "copy-to-dist": "cp www/lib/CordovaAppLoader.js dist/ && cp www/lib/CordovaPromiseFS.js dist/ && cp www/bootstrap.js dist/ && cp www/autoupdate.js dist/",
     "minify-dist": " uglifyjs -c -m --screw-ie8 dist/bootstrap.js -o dist/bootstrap.min.js && uglifyjs -c -m --screw-ie8 dist/autoupdate.js -o dist/autoupdate.min.js && uglifyjs -c -m --screw-ie8 dist/CordovaPromiseFS.js -o dist/CordovaPromiseFS.min.js && uglifyjs -c -m --screw-ie8 dist/CordovaAppLoader.js -o dist/CordovaAppLoader.min.js && uglifyjs -c -m --screw-ie8 dist/cordova-app-loader-complete.js > dist/cordova-app-loader-complete.min.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -25,7 +25,7 @@
   "author": "Mark Marijnissen",
   "license": "MIT",
   "dependencies": {
-    "cordova-file-cache": "^0.12.0",
-    "cordova-promise-fs": "^0.12.0"
+    "cordova-file-cache": "^0.13.0",
+    "cordova-promise-fs": "^0.13.0"
   }
 }
