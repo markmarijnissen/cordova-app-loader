@@ -296,6 +296,8 @@ var CordovaAppLoader =
 	    // update manifest
 	    localStorage.setItem('manifest',JSON.stringify(this.newManifest));
 	    if(reload !== false) location.reload();
+		this._updateReady = false;
+        this.manifest.files = Manifest.files = this.newManifest.files;
 	    return true;
 	  }
 	  return false;
