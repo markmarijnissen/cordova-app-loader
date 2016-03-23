@@ -74,8 +74,8 @@ Now you can remote update your app:
 
 ```bash
   cordova platform add ios@3.7.0
-  cordova plugin add org.apache.cordova.file
-  cordova plugin add org.apache.cordova.file-transfer
+  cordova plugin add cordova-plugin-file
+  cordova plugin add cordova-plugin-file-transfer
 ```
 
 **IMPORTANT:** For iOS, use Cordova 3.7.0 or higher (due to a [bug](https://github.com/AppGyver/steroids/issues/534) that affects requestFileSystem).
