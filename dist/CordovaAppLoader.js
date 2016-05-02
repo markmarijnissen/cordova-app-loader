@@ -465,7 +465,7 @@ var CordovaAppLoader =
 	            ev.url = url;
 	            ev.path = path;
 	            ev.percentage = done / total;
-	            if(ev.loaded > 0 && ev.total > 0 && index !== total){
+	            if(ev.loaded > 0 && ev.total > 0 && done !== total){
 	               ev.percentage += (ev.loaded / ev.total) / total;
 	            }
 	            onprogress(ev);
