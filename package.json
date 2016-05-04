@@ -25,7 +25,11 @@
   "author": "Mark Marijnissen",
   "license": "MIT",
   "dependencies": {
-    "cordova-file-cache": "^0.13.0",
-    "cordova-promise-fs": "^0.13.0"
+    "cordova-file-cache": "^1.0.1",
+    "cordova-promise-fs": "^1.0.1"
+  },
+  "devDependencies": {
+    "promiscuous": "^0.6.0",
+    "webpack": "^1.13.0"
   }
 }
