@@ -26,8 +26,8 @@ Or run on your own computer:
 git clone git@github.com:markmarijnissen/cordova-app-loader.git
 cd cordova-app-loader
 cordova platform add ios@3.7.0
-cordova plugin add org.apache.cordova.file
-cordova plugin add org.apache.cordova.file-transfer
+cordova plugin add cordova-plugin-file
+cordova plugin add cordova-plugin-file-transfer
 cordova run ios
 ```
 
