@@ -406,6 +406,13 @@ Here is a flow chart:
 
 ## Changelog
 
+### 1.0.0 (23/01/2016)
+
+* Version bump for Cordova File Cache + Cordova Promise FS
+* Defaults to no progress events for file transfer (performance boost!)
+* Fix toInternalURL Sync for different fileSystems.
+* Minor bugfixes
+
 ### 0.18.0 (23/01/2016)
 
 * Version bump for Cordova File Cache + Pull Requests
