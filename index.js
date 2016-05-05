@@ -242,10 +242,12 @@ AppLoader.prototype.download = function(onprogress,includeFileProgressEvents){
       return self.newManifest;
     },function(files){
       // on download error, remove files...
+      var err = files; 
       if(!!files && files.length){
         self.cache.remove(files);
+        err = new Error(files.length + ' files failed to download');
       }
-      return files;
+      throw err;
     });
 };
 

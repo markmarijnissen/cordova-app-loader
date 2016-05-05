@@ -412,6 +412,11 @@ Here is a flow chart:
 
 ## Changelog
 
+
+### 1.1.0 (05/05/2016)
+
+* Fix issues #53 -- apploader.download() will return error when download failes
+
 ### 1.0.0 (23/01/2016)
 
 * Version bump for Cordova File Cache + Cordova Promise FS
