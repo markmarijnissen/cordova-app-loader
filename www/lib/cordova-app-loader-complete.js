@@ -298,10 +298,12 @@
 	      return self.newManifest;
 	    },function(files){
 	      // on download error, remove files...
+	      var err = files; 
 	      if(!!files && files.length){
 	        self.cache.remove(files);
+	        err = new Error(files.length + ' files failed to download');
 	      }
-	      return files;
+	      throw err;
 	    });
 	};
 
@@ -581,8 +583,8 @@
 	    if(query > -1){
 	      url = url.substr(0,query);
 	    }
-	    url = url = this._fs.normalize(url || '');
-	    len = this.serverRoot.length;
+	    url = this._fs.normalize(url || '');
+	    var len = this.serverRoot.length;
 	    if(url.substr(0,len) !== this.serverRoot) {
 	      return this.localRoot + url;
 	    } else {
@@ -828,8 +830,8 @@
 
 	  /* debug */
 	  fs.then(function(fs){
-	    CDV_INTERNAL_URL_ROOT = fs.root.toInternalURL();
 	    CDV_URL_ROOT = fs.root.toURL();
+	    CDV_INTERNAL_URL_ROOT = isCordova? fs.root.toInternalURL(): CDV_URL_ROOT;
 	    window.__fs = fs;
 	  },function(err){
 	    console.error('Could not get Cordova FileSystem:',err);
