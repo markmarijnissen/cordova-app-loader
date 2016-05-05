@@ -76,9 +76,15 @@ Now you can remote update your app:
   cordova platform add ios@3.7.0
   cordova plugin add org.apache.cordova.file
   cordova plugin add org.apache.cordova.file-transfer
+  cordova plugin add cordova-plugin-whitelist
 ```
 
 **IMPORTANT:** For iOS, use Cordova 3.7.0 or higher (due to a [bug](https://github.com/AppGyver/steroids/issues/534) that affects requestFileSystem).
+
+For Android, the plugin `cordova-plugin-whitelist` is needed. You must also add the following to your `config.xml` file.
+
+    <access origin="cdvfile://*" />
+    <allow-intent href="cdvfile://*" />
 
 ### Download and include bootstrap.js
 
