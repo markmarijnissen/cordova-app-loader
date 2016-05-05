@@ -1,6 +1,6 @@
 {
   "name": "cordova-app-loader",
-  "version": "0.18.0",
+  "version": "1.0.0",
   "description": "Cordova App Loader - remote update your cordova app",
   "main": "index.js",
   "scripts": {

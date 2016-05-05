@@ -33,6 +33,7 @@ function AppLoader(options){
   this.manifest = window.Manifest;
   this.newManifest = null;
   this.bundledManifest = null;
+  this.preventAutoUpdateLoop = options.preventAutoUpdateLoop === true;
   this._lastUpdateFiles = localStorage.getItem('last_update_files');
 
   // normalize serverRoot and set remote manifest url
@@ -114,7 +115,7 @@ AppLoader.prototype.check = function(newManifest){
         // has been downloaded before (but failes)
         
         // Check if the newFiles match the previous files (last_update_files)
-        if(newFiles === self._lastUpdateFiles) {
+        if(self.preventAutoUpdateLoop === true && newFiles === self._lastUpdateFiles) {
           // YES! So we're doing the same update again!
 
           // Check if our current Manifest has indeed the "last_update_files"
@@ -132,7 +133,7 @@ AppLoader.prototype.check = function(newManifest){
 
         // Check if new manifest is valid
         if(!newManifest.files){
-          reject('Downloaded Manifest has no "files" attribute.');
+          reject(new Error('Downloaded Manifest has no "files" attribute.'));
           return;
         }
 
@@ -147,13 +148,14 @@ AppLoader.prototype.check = function(newManifest){
         self._toBeCopied = [];
         self._toBeDeleted= [];
         var isCordova = self.cache._fs.isCordova;
+        var changes = 0;
         Object.keys(newFiles)
           // Find files that have changed version or are missing
           .filter(function(file){
                     // if new file, or...
             return !oldFiles[file] ||
                     // version has changed, or...
-                    oldFiles[file].version !== newFiles[file].version ||
+                    oldFiles[file].version !== newFiles[file].version //||
                     // not in cache for some reason
                     !self.cache.isCached(file);
           })
@@ -165,6 +167,9 @@ AppLoader.prototype.check = function(newManifest){
             // othwerwise, we must download
             } else {
               self._toBeDownloaded.push(file);
+            }
+            if(!bundledFiles[file] || bundledFiles[file].version !== newFiles[file].version){
+              changes++;
             }
           });
 
@@ -183,13 +188,13 @@ AppLoader.prototype.check = function(newManifest){
           });
 
 
-        var changes = self._toBeDeleted.length + self._toBeDownloaded.length;
+        changes += self._toBeDeleted.length;
         // Note: if we only need to copy files, we can keep serving from bundle!
         // So no update is needed!
         if(changes > 0){
           // Save the new Manifest
           self.newManifest = newManifest;
-          self.newManifest.root = self.cache.localInternalURL;
+          self.newManifest.root = self.cache.localUrl;
           resolve(true);
         } else {
           resolve(false);
@@ -208,7 +213,7 @@ AppLoader.prototype.canUpdate = function(){
   return this._updateReady;
 };
 
-AppLoader.prototype.download = function(onprogress){
+AppLoader.prototype.download = function(onprogress,includeFileProgressEvents){
   var self = this;
   if(!self.canDownload()) {
     return new Promise(function(resolve){ resolve(null); });
@@ -229,7 +234,7 @@ AppLoader.prototype.download = function(onprogress){
         self.cache.serverRoot = self.newManifest.serverRoot;
       }
       self.cache.add(self._toBeDownloaded);
-      return self.cache.download(onprogress);
+      return self.cache.download(onprogress,includeFileProgressEvents);
     }).then(function(){
       self._toBeDeleted = [];
       self._toBeDownloaded = [];
