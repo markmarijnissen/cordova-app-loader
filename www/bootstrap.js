@@ -16,7 +16,7 @@ window.pegasus = function pegasus(a, xhr) {
   // onSuccess handler
   // onError   handler
   // cb        placeholder to avoid using var, should not be used
-  xhr.onreadystatechange = xhr.then = function(onSuccess, onError, cb) {
+  xhr.onreadystatechange = xhr.then = function(onSuccess, onError, cb, result) {
 
     // Test if onSuccess is a function or a load event
     if (onSuccess.call) a = [onSuccess, onError];
@@ -24,14 +24,22 @@ window.pegasus = function pegasus(a, xhr) {
     // Test if request is complete
     if (xhr.readyState == 4) {
 
-      // index will be:
-      // 0 if status is between 0 and 399
-      // 1 if status is over
-      cb = a[0|xhr.status / 400];
+      try {
+        if(xhr.status === 200 || xhr.status === 0){
+          result = JSON.parse(xhr.responseText);
+          cb = a[0];
+        } else {
+          result = new Error('Status: '+xhr.status);
+          cb = a[1];
+        }
+      } catch(e) {
+        result = e;
+        cb = a[1];
+      }
 
       // Safari doesn't support xhr.responseType = 'json'
       // so the response is parsed
-      if (cb) cb(xhr.status === 200 || xhr.status === 0?JSON.parse(xhr.responseText):xhr);
+      if (cb) cb(result);
     }
   };
 
@@ -76,6 +84,7 @@ function loadManifest(manifest,fromLocalStorage,timeout){
       // Load javascript
       if(src.substr(-3) === ".js"){
         el= document.createElement('script');
+        el.charset="UTF-8";
         el.type= 'text/javascript';
         el.src= src + '?' + now;
         el.async = false;

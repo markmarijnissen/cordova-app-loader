@@ -10,7 +10,7 @@
 
 	QUnit.asyncTest('cache = new CordovaFileCache(...)',function(assert){
 		fs = new CordovaPromiseFS({
-			persistent: typeof cordova !== 'undefined',
+			persistent: 0,
 			Promise:Promise
 		});
 

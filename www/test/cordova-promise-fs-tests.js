@@ -37,6 +37,8 @@
 		assert.equal(fs.normalize('/file.txt'),	'file.txt',	'/file.txt => file.txt');
 		assert.equal(fs.normalize('/dir/sub/sub/text.txt'),	'dir/sub/sub/text.txt',	'subdirectories with file');
 		assert.equal(fs.normalize('/dir/sub/sub/sub'),	'dir/sub/sub/sub/',	'subdirectories');
+		assert.equal(fs.normalize('/dir/sub/../sub'),	'dir/sub/',	'normalize ..');
+		assert.equal(fs.normalize('/dir/sub/./sub'),	'dir/sub/sub/',	'normalize .');
 	});
 
 
