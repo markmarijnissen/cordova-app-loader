@@ -412,6 +412,14 @@ Here is a flow chart:
 
 ## Changelog
 
+### 1.2.0 (12/05/2016)
+
+* Fix issue #99 (cache busting for manifest.json)
+* Fix issue #98 (silent error on iOS for _createFilemap when Manifest has no Files attribute)
+* Improve Auto Update Loop prevention: 
+    * If downloads get interrupted or fails, it will try again. (However, if a download is interrupted, it will launch the bundled app on next launch, not the latest app. See issue #21)
+    * If there is more than 1 minute between updates, it will try again.
+    * So, in effect, only when the exact same update is attempted within 1 minute, autoupdate loop prevention will kick in. This will include cases where BOOTSTRAP_OK is false, and exclude cases where the download was interrupted or failed.
 
 ### 1.1.0 (05/05/2016)
 

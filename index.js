@@ -36,6 +36,12 @@ function AppLoader(options){
   this.preventAutoUpdateLoop = options.preventAutoUpdateLoop === true;
   this._lastUpdateFiles = localStorage.getItem('last_update_files');
 
+  // only prevent autoupdateloop if last update was less than 1 minute ago
+  var lastUpdateTime = 1.0 * localStorage.getItem('last_update_time');
+  if(Date.now() - this._lastUpdateTime > 60000){
+    this.preventAutoUpdateLoop = false;
+  }
+
   // normalize serverRoot and set remote manifest url
   options.serverRoot = options.serverRoot || '';
   if(!!options.serverRoot && options.serverRoot[options.serverRoot.length-1] !== '/') options.serverRoot += '/';
@@ -57,7 +63,7 @@ function AppLoader(options){
 AppLoader.prototype._createFilemap = function(files){
   var result = {};
   var normalize = this.cache._fs.normalize;
-  Object.keys(files).forEach(function(key){
+  Object.keys(files || []).forEach(function(key){
     files[key].filename = normalize(files[key].filename);
     result[files[key].filename] = files[key];
   });
@@ -99,7 +105,8 @@ AppLoader.prototype.check = function(newManifest){
     if(typeof newManifest === "object") {
       resolve(newManifest);
     } else {
-      pegasus(self.newManifestUrl).then(resolve,reject);
+      var url = self.cache._cacheBuster? self.newManifestUrl + '?' + Date.now(): self.newManifestUrl;
+      pegasus(url).then(resolve,reject);
       setTimeout(function(){reject(new Error('new manifest timeout'));},self._checkTimeout);
     }
   });
@@ -155,7 +162,7 @@ AppLoader.prototype.check = function(newManifest){
                     // if new file, or...
             return !oldFiles[file] ||
                     // version has changed, or...
-                    oldFiles[file].version !== newFiles[file].version //||
+                    oldFiles[file].version !== newFiles[file].version ||
                     // not in cache for some reason
                     !self.cache.isCached(file);
           })
@@ -220,8 +227,6 @@ AppLoader.prototype.download = function(onprogress,includeFileProgressEvents){
   }
   // we will delete files, which will invalidate the current manifest...
   localStorage.removeItem('manifest');
-  // only attempt this once - set 'last_update_files'
-  localStorage.setItem('last_update_files',hash(this.newManifest.files));
   this.manifest.files = Manifest.files = {};
   return self.cache.remove(self._toBeDeleted,true)
     .then(function(){
@@ -235,19 +240,11 @@ AppLoader.prototype.download = function(onprogress,includeFileProgressEvents){
       }
       self.cache.add(self._toBeDownloaded);
       return self.cache.download(onprogress,includeFileProgressEvents);
-    }).then(function(){
+  }).then(function(){
       self._toBeDeleted = [];
       self._toBeDownloaded = [];
       self._updateReady = true;
       return self.newManifest;
-    },function(files){
-      // on download error, remove files...
-      var err = files; 
-      if(!!files && files.length){
-        self.cache.remove(files);
-        err = new Error(files.length + ' files failed to download');
-      }
-      throw err;
     });
 };
 
@@ -255,6 +252,9 @@ AppLoader.prototype.update = function(reload){
   if(this._updateReady) {
     // update manifest
     localStorage.setItem('manifest',JSON.stringify(this.newManifest));
+    // only attempt this once - set 'last_update_files'
+    localStorage.setItem('last_update_files',hash(this.newManifest.files));
+    localStorage.setItem('last_update_time',Date.now());
     if(reload !== false) location.reload();
     return true;
   }
