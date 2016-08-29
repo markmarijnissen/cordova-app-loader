@@ -188,7 +188,7 @@ AppLoader.prototype.check = function(newManifest){
           .filter(function(file){
             // Everything that is not in new manifest, or....
             var _toBeDownloaded = self._toBeDownloaded.reduce(function(acc, val) {
-              acc.push(val.url);
+              acc.push(val.filename);
               return acc;
             }, []);
             return !newFiles[file] ||
