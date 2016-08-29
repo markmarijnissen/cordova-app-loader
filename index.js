@@ -173,7 +173,7 @@ AppLoader.prototype.check = function(newManifest){
               self._toBeCopied.push(file);
             // othwerwise, we must download
             } else {
-              self._toBeDownloaded.push(file);
+              self._toBeDownloaded.push(newFiles[file]);
             }
             if(!bundledFiles[file] || bundledFiles[file].version !== newFiles[file].version){
               changes++;
@@ -186,10 +186,14 @@ AppLoader.prototype.check = function(newManifest){
             return file.substr(self.cache.localRoot.length);
           })
           .filter(function(file){
-                  // Everything that is not in new manifest, or....
+            // Everything that is not in new manifest, or....
+            var _toBeDownloaded = self._toBeDownloaded.reduce(function(acc, val) {
+              acc.push(val.url);
+              return acc;
+            }, []);
             return !newFiles[file] ||
                   // Files that will be downloaded, or...
-                   self._toBeDownloaded.indexOf(file) >= 0 ||
+                   _toBeDownloaded.indexOf(file) >= 0 ||
                   // Files that will be copied
                    self._toBeCopied.indexOf(file) >= 0;
           });
