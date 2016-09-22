@@ -235,7 +235,7 @@ AppLoader.prototype.download = function(onprogress,includeFileProgressEvents){
   return self.cache.remove(self._toBeDeleted,true)
     .then(function(){
       return Promise.all(self._toBeCopied.map(function(file){
-        return self.cache._fs.download(BUNDLE_ROOT + file,self.cache.localRoot + file);
+        return self.cache._fs.download(BUNDLE_ROOT + file.filename, self.cache.localRoot + file.filename);
       }));
     })
     .then(function(){
