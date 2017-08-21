@@ -74,8 +74,8 @@ Now you can remote update your app:
 
 ```bash
   cordova platform add ios@3.7.0
-  cordova plugin add org.apache.cordova.file
-  cordova plugin add org.apache.cordova.file-transfer
+  cordova plugin add cordova-plugin-file
+  cordova plugin add cordova-plugin-file-transfer
   cordova plugin add cordova-plugin-whitelist
 ```
 
