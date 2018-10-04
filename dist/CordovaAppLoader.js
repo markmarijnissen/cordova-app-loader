@@ -303,6 +303,8 @@ var CordovaAppLoader =
 	    localStorage.setItem('last_update_files',hash(this.newManifest.files));
 	    localStorage.setItem('last_update_time',Date.now());
 	    if(reload !== false) location.reload();
+		this._updateReady = false;
+        this.manifest.files = Manifest.files = this.newManifest.files;
 	    return true;
 	  }
 	  return false;
