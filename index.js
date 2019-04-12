@@ -164,16 +164,16 @@ AppLoader.prototype.check = function(newManifest){
                     // version has changed, or...
                     oldFiles[file].version !== newFiles[file].version ||
                     // not in cache for some reason
-                    !self.cache.isCached(file);
+                    !self.cache.isCached(newFiles[file]);
           })
           // Add them to the correct list
           .forEach(function(file){
             // bundled version matches new version, so we can copy!
             if(isCordova && bundledFiles[file] && bundledFiles[file].version === newFiles[file].version){
-              self._toBeCopied.push(file);
+              self._toBeCopied.push(newFiles[file]);
             // othwerwise, we must download
             } else {
-              self._toBeDownloaded.push(file);
+              self._toBeDownloaded.push(newFiles[file]);
             }
             if(!bundledFiles[file] || bundledFiles[file].version !== newFiles[file].version){
               changes++;
@@ -186,10 +186,14 @@ AppLoader.prototype.check = function(newManifest){
             return file.substr(self.cache.localRoot.length);
           })
           .filter(function(file){
-                  // Everything that is not in new manifest, or....
+            // Everything that is not in new manifest, or....
+            var _toBeDownloaded = self._toBeDownloaded.reduce(function(acc, val) {
+              acc.push(val.filename);
+              return acc;
+            }, []);
             return !newFiles[file] ||
                   // Files that will be downloaded, or...
-                   self._toBeDownloaded.indexOf(file) >= 0 ||
+                   _toBeDownloaded.indexOf(file) >= 0 ||
                   // Files that will be copied
                    self._toBeCopied.indexOf(file) >= 0;
           });
@@ -231,7 +235,7 @@ AppLoader.prototype.download = function(onprogress,includeFileProgressEvents){
   return self.cache.remove(self._toBeDeleted,true)
     .then(function(){
       return Promise.all(self._toBeCopied.map(function(file){
-        return self.cache._fs.download(BUNDLE_ROOT + file,self.cache.localRoot + file);
+        return self.cache._fs.download(BUNDLE_ROOT + file.filename, self.cache.localRoot + file.filename);
       }));
     })
     .then(function(){
